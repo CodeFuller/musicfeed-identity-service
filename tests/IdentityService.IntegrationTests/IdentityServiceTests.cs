@@ -2,8 +2,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using IdentityService.Client;
 using IdentityService.Grpc;
-using IdentityService.Migrations;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace IdentityService.IntegrationTests
@@ -73,35 +71,13 @@ namespace IdentityService.IntegrationTests
 			var request = new RegisterUserRequest
 			{
 				Email = "SoMeUsEr@TeSt.CoM",
-				Password = "Qwerty-Qwerty1",
+				Password = "QwErTy-QwErTy1",
 			};
 
-			static void SeedData(ApplicationDbContext context)
-			{
-				var existingUser = new IdentityUser
-				{
-					Id = "4d4081ee710c499ab0061fdf9b1be841",
-					UserName = "SomeUser@test.com",
-					NormalizedUserName = "SOMEUSER@TEST.COM",
-					Email = "SomeUser@test.com",
-					NormalizedEmail = "SOMEUSER@TEST.COM",
-					EmailConfirmed = false,
-					PasswordHash = "AQAAAAEAACcQAAAAEC8/kY4JPWgfNPTXw6b9K0oPtCn6NcX8+nw2Q0PaOlwsPhwSHh2Ltz1z81FhJVBGrQ==",
-					SecurityStamp = "KOCXTBU5L72Q6GTBORBRVVXEDUENTHOM",
-					ConcurrencyStamp = "b9a1a2bf-0f91-405f-b63e-3434ae0a5795",
-					PhoneNumber = null,
-					PhoneNumberConfirmed = false,
-					TwoFactorEnabled = false,
-					LockoutEnd = null,
-					LockoutEnabled = true,
-					AccessFailedCount = 0,
-				};
-
-				context.Users.Add(existingUser);
-			}
-
-			using var factory = new CustomWebApplicationFactory(SeedData);
+			using var factory = new CustomWebApplicationFactory();
 			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
 
 			// Act
 
@@ -212,6 +188,236 @@ namespace IdentityService.IntegrationTests
 
 			response.UserId.Should().BeEmpty();
 			response.Errors.Should().BeEquivalentTo(expectedError);
+		}
+
+		[TestMethod]
+		public async Task CheckUser_ForCorrectUserCredentials_CompletesSuccessfully()
+		{
+			// Arrange
+
+			var request = new CheckUserRequest
+			{
+				Email = "SomeUser@test.com",
+				Password = "Qwerty-Qwerty1",
+			};
+
+			using var factory = new CustomWebApplicationFactory();
+			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
+
+			// Act
+
+			var response = await client.CheckUserAsync(request);
+
+			// Assert
+
+			response.UserId.Should().NotBeNullOrWhiteSpace();
+			response.Errors.Should().BeEmpty();
+		}
+
+		[TestMethod]
+		public async Task CheckUser_ForEmailInDifferentCase_CompletesSuccessfully()
+		{
+			// Arrange
+
+			var request = new CheckUserRequest
+			{
+				Email = "SoMeUsEr@TeSt.CoM",
+				Password = "Qwerty-Qwerty1",
+			};
+
+			using var factory = new CustomWebApplicationFactory();
+			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
+
+			// Act
+
+			var response = await client.CheckUserAsync(request);
+
+			// Assert
+
+			response.UserId.Should().NotBeNullOrWhiteSpace();
+			response.Errors.Should().BeEmpty();
+		}
+
+		[TestMethod]
+		public async Task CheckUser_ForCorrectCredentialsAfterFourFailedAttempts_CompletesSuccessfully()
+		{
+			// Arrange
+
+			var correctRequest = new CheckUserRequest
+			{
+				Email = "SomeUser@test.com",
+				Password = "Qwerty-Qwerty1",
+			};
+
+			using var factory = new CustomWebApplicationFactory();
+			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
+
+			async Task CheckUserWithIncorrectPassword()
+			{
+				var incorrectRequest = new CheckUserRequest
+				{
+					Email = "SomeUser@test.com",
+					Password = "Qwerty-Qwerty",
+				};
+
+				var failedResponse = await client.CheckUserAsync(incorrectRequest);
+
+				// Sanity check
+				failedResponse.UserId.Should().BeEmpty();
+				failedResponse.Errors.Should().NotBeEmpty();
+			}
+
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+
+			// Act
+
+			var response = await client.CheckUserAsync(correctRequest);
+
+			// Assert
+
+			response.UserId.Should().NotBeNullOrWhiteSpace();
+			response.Errors.Should().BeEmpty();
+		}
+
+		[TestMethod]
+		public async Task CheckUser_ForCorrectCredentialsAfterFiveFailedAttempts_ReturnsError()
+		{
+			// Arrange
+
+			var correctRequest = new CheckUserRequest
+			{
+				Email = "SomeUser@test.com",
+				Password = "Qwerty-Qwerty1",
+			};
+
+			using var factory = new CustomWebApplicationFactory();
+			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
+
+			async Task CheckUserWithIncorrectPassword()
+			{
+				var incorrectRequest = new CheckUserRequest
+				{
+					Email = "SomeUser@test.com",
+					Password = "Qwerty-Qwerty",
+				};
+
+				var failedResponse = await client.CheckUserAsync(incorrectRequest);
+
+				// Sanity check
+				failedResponse.UserId.Should().BeEmpty();
+				failedResponse.Errors.Should().NotBeEmpty();
+			}
+
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+			await CheckUserWithIncorrectPassword();
+
+			// Act
+
+			var response = await client.CheckUserAsync(correctRequest);
+
+			// Assert
+
+			var expectedError = new IdentityServiceError
+			{
+				ErrorCode = "IncorrectUserNameOrPassword",
+				ErrorDescription = "The user name or password is incorrect.",
+			};
+
+			response.UserId.Should().BeEmpty();
+			response.Errors.Should().BeEquivalentTo(expectedError);
+		}
+
+		[TestMethod]
+		public async Task CheckUser_ForIncorrectUserName_ReturnsError()
+		{
+			// Arrange
+
+			var request = new CheckUserRequest
+			{
+				Email = "AnotherUser@test.com",
+				Password = "Qwerty-Qwerty1",
+			};
+
+			using var factory = new CustomWebApplicationFactory();
+			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
+
+			// Act
+
+			var response = await client.CheckUserAsync(request);
+
+			// Assert
+
+			var expectedError = new IdentityServiceError
+			{
+				ErrorCode = "IncorrectUserNameOrPassword",
+				ErrorDescription = "The user name or password is incorrect.",
+			};
+
+			response.UserId.Should().BeEmpty();
+			response.Errors.Should().BeEquivalentTo(expectedError);
+		}
+
+		[TestMethod]
+		public async Task CheckUser_ForIncorrectPassword_ReturnsError()
+		{
+			// Arrange
+
+			var request = new CheckUserRequest
+			{
+				Email = "SomeUser@test.com",
+				Password = "Qwerty-Qwerty",
+			};
+
+			using var factory = new CustomWebApplicationFactory();
+			var client = factory.CreateServiceClient<IIdentityServiceClient>();
+
+			await SeedUser(client, "SomeUser@test.com", "Qwerty-Qwerty1");
+
+			// Act
+
+			var response = await client.CheckUserAsync(request);
+
+			// Assert
+
+			var expectedError = new IdentityServiceError
+			{
+				ErrorCode = "IncorrectUserNameOrPassword",
+				ErrorDescription = "The user name or password is incorrect.",
+			};
+
+			response.UserId.Should().BeEmpty();
+			response.Errors.Should().BeEquivalentTo(expectedError);
+		}
+
+		private static async Task SeedUser(IIdentityServiceClient client, string userName, string password)
+		{
+			var request = new RegisterUserRequest
+			{
+				Email = userName,
+				Password = password,
+			};
+
+			var seedResponse = await client.RegisterUserAsync(request);
+
+			// Sanity check
+			seedResponse.UserId.Should().NotBeNullOrWhiteSpace();
+			seedResponse.Errors.Should().BeEmpty();
 		}
 	}
 }

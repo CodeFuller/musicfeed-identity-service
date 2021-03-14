@@ -50,7 +50,7 @@ namespace IdentityService.Services
 
 			logger.LogWarning("Failed to register user {UserName}. Errors: {@RegisterUserErrors}", request.Email, result.Errors);
 
-			var errors = ProcessIdentityErrors(result.Errors);
+			var errors = ProcessIdentityErrorsFromUserCreation(result.Errors);
 
 			return new RegisterUserReply
 			{
@@ -66,7 +66,7 @@ namespace IdentityService.Services
 			};
 		}
 
-		private static IEnumerable<IdentityError> ProcessIdentityErrors(IEnumerable<IdentityError> errors)
+		private static IEnumerable<IdentityError> ProcessIdentityErrorsFromUserCreation(IEnumerable<IdentityError> errors)
 		{
 			var errorsList = errors.ToList();
 
@@ -78,6 +78,43 @@ namespace IdentityService.Services
 			}
 
 			return errorsList;
+		}
+
+		public override async Task<CheckUserReply> CheckUser(CheckUserRequest request, ServerCallContext context)
+		{
+			logger.LogInformation("Checking user {UserName} ...", request.Email);
+
+			var failedCheckReply = new CheckUserReply
+			{
+				UserId = String.Empty,
+				Errors =
+				{
+					new IdentityServiceError
+					{
+						ErrorCode = "IncorrectUserNameOrPassword",
+						ErrorDescription = "The user name or password is incorrect.",
+					},
+				},
+			};
+
+			var user = await userManager.FindByNameAsync(request.Email);
+			if (user == null)
+			{
+				logger.LogWarning("Check for user {UserName} has failed due to incorrect user name", request.Email);
+				return failedCheckReply;
+			}
+
+			var singInResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+			if (singInResult.Succeeded)
+			{
+				return new CheckUserReply
+				{
+					UserId = user.Id,
+				};
+			}
+
+			logger.LogWarning("Check for user {UserName} has failed. IsLockedOut: {UserIsLockedOut}, IsNotAllowed: {UserInIsNotAllowed}", request.Email, singInResult.IsLockedOut, singInResult.IsNotAllowed);
+			return failedCheckReply;
 		}
 	}
 }

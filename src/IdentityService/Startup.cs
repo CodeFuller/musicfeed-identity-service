@@ -51,6 +51,10 @@ namespace IdentityService
 					// Without this setting, Identity does not validate email format.
 					options.User.RequireUniqueEmail = true;
 
+					options.Lockout.AllowedForNewUsers = true;
+					options.Lockout.MaxFailedAccessAttempts = 5;
+					options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromHours(1);
+
 					options.SignIn.RequireConfirmedAccount = false;
 				})
 				.AddEntityFrameworkStores<ApplicationDbContext>();

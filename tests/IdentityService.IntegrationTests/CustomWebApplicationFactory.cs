@@ -1,5 +1,4 @@
-﻿using System;
-using IdentityService.Client;
+﻿using IdentityService.Client;
 using IdentityService.Migrations;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,14 +7,7 @@ namespace IdentityService.IntegrationTests
 {
 	public class CustomWebApplicationFactory : WebApplicationFactory<Startup>
 	{
-		private readonly Action<ApplicationDbContext> seedData;
-
 		private ServiceProvider ServiceProvider { get; set; }
-
-		public CustomWebApplicationFactory(Action<ApplicationDbContext> seedData = null)
-		{
-			this.seedData = seedData ?? (_ => { });
-		}
 
 		public TService CreateServiceClient<TService>()
 		{
@@ -48,7 +40,6 @@ namespace IdentityService.IntegrationTests
 			using var context = servicesProvider.GetRequiredService<ApplicationDbContext>();
 
 			context.Users.RemoveRange(context.Users);
-			seedData(context);
 			context.SaveChanges();
 		}
 

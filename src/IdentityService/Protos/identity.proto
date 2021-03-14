@@ -6,12 +6,9 @@ option csharp_namespace = "IdentityService.Grpc";
 service IdentityService {
   // Registers new user.
   rpc RegisterUser (RegisterUserRequest) returns (RegisterUserReply);
-}
 
-// The request message containing the details for new user.
-message RegisterUserRequest {
-  string email = 1;
-  string password = 2;
+  // Checks user credentials.
+  rpc CheckUser (CheckUserRequest) returns (CheckUserReply);
 }
 
 // The error from IdentityService.
@@ -20,8 +17,26 @@ message IdentityServiceError {
 	string errorDescription = 2;
 }
 
-// The response message containing the details of registered user.
+// The request for RegisterUser method.
+message RegisterUserRequest {
+  string email = 1;
+  string password = 2;
+}
+
+// The response for RegisterUser method.
 message RegisterUserReply {
   string userId = 1;
   repeated IdentityServiceError errors = 2;
+}
+
+// The request for CheckUser method.
+message CheckUserRequest {
+	string email = 1;
+	string password = 2;
+}
+
+// The response for CheckUser method.
+message CheckUserReply {
+	string userId = 1;
+	repeated IdentityServiceError errors = 2;
 }
