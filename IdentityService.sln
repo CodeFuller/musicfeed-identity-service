@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "src\Iden
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService.Migrations", "src\IdentityService.Migrations\IdentityService.Migrations.csproj", "{8AE361DA-A692-4071-B3C6-906A8B011EFF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService.Client", "src\IdentityService.Client\IdentityService.Client.csproj", "{41716F1E-A3BD-49F6-8A3A-69D405D5349B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{8AE361DA-A692-4071-B3C6-906A8B011EFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AE361DA-A692-4071-B3C6-906A8B011EFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AE361DA-A692-4071-B3C6-906A8B011EFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41716F1E-A3BD-49F6-8A3A-69D405D5349B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41716F1E-A3BD-49F6-8A3A-69D405D5349B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41716F1E-A3BD-49F6-8A3A-69D405D5349B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41716F1E-A3BD-49F6-8A3A-69D405D5349B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,6 +36,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0B533D25-E458-47F8-B76D-270142392B4E} = {C578A63C-25E6-46C0-A2F4-CBBF55C5FB15}
 		{8AE361DA-A692-4071-B3C6-906A8B011EFF} = {C578A63C-25E6-46C0-A2F4-CBBF55C5FB15}
+		{41716F1E-A3BD-49F6-8A3A-69D405D5349B} = {C578A63C-25E6-46C0-A2F4-CBBF55C5FB15}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D560B1F8-B698-4B44-9542-E841C9AA97A9}
