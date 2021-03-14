@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
@@ -49,18 +50,34 @@ namespace IdentityService.Services
 
 			logger.LogWarning("Failed to register user {UserName}. Errors: {@RegisterUserErrors}", request.Email, result.Errors);
 
+			var errors = ProcessIdentityErrors(result.Errors);
+
 			return new RegisterUserReply
 			{
 				UserId = String.Empty,
 				Errors =
 				{
-					result.Errors.Select(error => new IdentityServiceError
+					errors.Select(error => new IdentityServiceError
 					{
 						ErrorCode = error.Code,
 						ErrorDescription = error.Description,
 					}),
 				},
 			};
+		}
+
+		private static IEnumerable<IdentityError> ProcessIdentityErrors(IEnumerable<IdentityError> errors)
+		{
+			var errorsList = errors.ToList();
+
+			// Since we use email as login, duplicated e-mail will produce 2 errors: DuplicateUserName and DuplicateEmail.
+			// We return only one error to the client.
+			if (errorsList.Count == 2 && errorsList[0].Code == "DuplicateUserName" && errorsList[1].Code == "DuplicateEmail")
+			{
+				return new[] { errorsList[0] };
+			}
+
+			return errorsList;
 		}
 	}
 }

@@ -41,6 +41,16 @@ namespace IdentityService
 			// https://stackoverflow.com/questions/55361533/addidentity-vs-addidentitycore
 			services.AddIdentity<IdentityUser, IdentityRole>(options =>
 				{
+					options.Password.RequireDigit = true;
+					options.Password.RequireLowercase = true;
+					options.Password.RequireNonAlphanumeric = true;
+					options.Password.RequireUppercase = true;
+					options.Password.RequiredLength = 8;
+					options.Password.RequiredUniqueChars = 5;
+
+					// Without this setting, Identity does not validate email format.
+					options.User.RequireUniqueEmail = true;
+
 					options.SignIn.RequireConfirmedAccount = false;
 				})
 				.AddEntityFrameworkStores<ApplicationDbContext>();
