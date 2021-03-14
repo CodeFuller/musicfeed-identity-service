@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "IdentityService.Grpc";
+
+// The service for registering and authenticating the users.
+service IdentityService {
+  // Registers new user.
+  rpc RegisterUser (RegisterUserRequest) returns (RegisterUserReply);
+}
+
+// The request message containing the details for new user.
+message RegisterUserRequest {
+  string email = 1;
+}
+
+// The response message containing the details of registered user.
+message RegisterUserReply {
+  string userId = 1;
+}
