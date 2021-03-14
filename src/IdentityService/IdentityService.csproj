@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Version>0.0.6</Version>
+    <Version>0.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -11,6 +11,7 @@
     <CodeAnalysisRuleSet>../../IdentityService.src.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <UserSecretsId>a73467de-3adb-41a4-aab2-ffecd2015696</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,9 +22,14 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.1" />
     <PackageReference Include="CodeFuller.MusicFeed.ApplicationInsights" Version="1.0.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.34.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.4" PrivateAssets="all" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.321" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IdentityService.Migrations\IdentityService.Migrations.csproj" />
   </ItemGroup>
 
 </Project>

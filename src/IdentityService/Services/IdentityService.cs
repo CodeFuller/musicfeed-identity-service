@@ -2,27 +2,46 @@ using System;
 using System.Threading.Tasks;
 using Grpc.Core;
 using IdentityService.Grpc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace IdentityService.Services
 {
 	internal class IdentityService : Grpc.IdentityService.IdentityServiceBase
 	{
+		private readonly UserManager<IdentityUser> userManager;
+
+		private readonly SignInManager<IdentityUser> signInManager;
+
 		private readonly ILogger<IdentityService> logger;
 
-		public IdentityService(ILogger<IdentityService> logger)
+		public IdentityService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ILogger<IdentityService> logger)
 		{
+			this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+			this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
 			this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 		}
 
-		public override Task<RegisterUserReply> RegisterUser(RegisterUserRequest request, ServerCallContext context)
+		public override async Task<RegisterUserReply> RegisterUser(RegisterUserRequest request, ServerCallContext context)
 		{
-			logger.LogInformation("Registering new user {UserName} ...", request.Email);
+			var newUserId = Guid.NewGuid().ToString("N");
 
-			return Task.FromResult(new RegisterUserReply
+			logger.LogInformation("Registering new user {UserName} with id {UserId} ...", request.Email, newUserId);
+
+			var newUser = new IdentityUser
 			{
-				UserId = "Test",
-			});
+				Id = newUserId,
+				UserName = request.Email,
+				Email = request.Email,
+			};
+
+			// TODO: Handle errors
+			await userManager.CreateAsync(newUser, request.Password);
+
+			return new RegisterUserReply
+			{
+				UserId = newUserId,
+			};
 		}
 	}
 }

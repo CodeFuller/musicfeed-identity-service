@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -14,6 +15,13 @@ namespace IdentityService
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
 			Host.CreateDefaultBuilder(args)
+				.ConfigureAppConfiguration((hostContext, builder) =>
+				{
+					if (hostContext.HostingEnvironment.IsDevelopment())
+					{
+						builder.AddUserSecrets<Startup>();
+					}
+				})
 				.UseSerilog((hostingContext, loggerConfiguration) =>
 				{
 					loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration);
