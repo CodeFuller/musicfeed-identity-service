@@ -14,7 +14,14 @@ message RegisterUserRequest {
   string password = 2;
 }
 
+// The error from IdentityService.
+message IdentityServiceError {
+	string errorCode = 1;
+	string errorDescription = 2;
+}
+
 // The response message containing the details of registered user.
 message RegisterUserReply {
   string userId = 1;
+  repeated IdentityServiceError errors = 2;
 }

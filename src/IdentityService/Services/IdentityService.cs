@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Grpc.Core;
 using IdentityService.Grpc;
@@ -35,12 +36,30 @@ namespace IdentityService.Services
 				Email = request.Email,
 			};
 
-			// TODO: Handle errors
-			await userManager.CreateAsync(newUser, request.Password);
+			var result = await userManager.CreateAsync(newUser, request.Password);
+			if (result.Succeeded)
+			{
+				logger.LogInformation("Successfully registered new user {UserName} with id {UserId}", request.Email, newUserId);
+
+				return new RegisterUserReply
+				{
+					UserId = newUserId,
+				};
+			}
+
+			logger.LogWarning("Failed to register user {UserName}. Errors: {@RegisterUserErrors}", request.Email, result.Errors);
 
 			return new RegisterUserReply
 			{
-				UserId = newUserId,
+				UserId = String.Empty,
+				Errors =
+				{
+					result.Errors.Select(error => new IdentityServiceError
+					{
+						ErrorCode = error.Code,
+						ErrorDescription = error.Description,
+					}),
+				},
 			};
 		}
 	}
