@@ -29,14 +29,15 @@ namespace IdentityService
 		{
 			services.AddGrpc();
 
+			var connectionString = configuration.GetConnectionString("DefaultConnection");
+
 			services.AddControllers();
-			services.AddHealthChecks();
+			services.AddHealthChecks().AddSqlServer(connectionString, tags: new[] { "ready" });
 
 			services.AddApplicationInsights(settings => configuration.Bind("applicationInsights", settings));
 
 			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseSqlServer(
-					configuration.GetConnectionString("DefaultConnection"), x => x.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name)));
+				options.UseSqlServer(connectionString, x => x.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.GetName().Name)));
 
 			// https://stackoverflow.com/questions/55361533/addidentity-vs-addidentitycore
 			services.AddIdentity<IdentityUser, IdentityRole>(options =>
