@@ -4,6 +4,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>0fbe9e21-400b-4d04-81a8-c3c283633cb3</UserSecretsId>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -15,6 +16,7 @@
 
     <ItemGroup>
         <PackageReference Include="Duende.IdentityServer" Version="6.1.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.5" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
     </ItemGroup>
 

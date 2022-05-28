@@ -1,3 +1,4 @@
+using Duende.IdentityServer;
 using IdentityService;
 using IdentityService.Pages;
 
@@ -10,6 +11,16 @@ builder.Services.AddIdentityServer()
 	.AddInMemoryApiScopes(Config.ApiScopes)
 	.AddInMemoryClients(Config.Clients)
 	.AddTestUsers(TestUsers.Users);
+
+builder.Services
+	.AddAuthentication()
+	.AddGoogle("Google", options =>
+	{
+		options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+
+		options.ClientId = builder.Configuration["authentication:google:clientId"];
+		options.ClientSecret = builder.Configuration["authentication:google:clientSecret"];
+	});
 
 var app = builder.Build();
 
