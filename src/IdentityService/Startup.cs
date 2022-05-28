@@ -78,7 +78,6 @@ namespace IdentityService
 			{
 				endpoints.MapGrpcService<Services.IdentityService>();
 
-				// TODO: Add check for the database
 				endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
 				{
 					Predicate = check => check.Tags.Contains("ready"),
