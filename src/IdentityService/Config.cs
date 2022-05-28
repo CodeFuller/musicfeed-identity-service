@@ -28,15 +28,6 @@ namespace IdentityService
 		{
 			get
 			{
-				// Machine to machine client.
-				yield return new()
-				{
-					ClientId = "client",
-					ClientSecrets = { new Secret("secret".Sha256()) },
-					AllowedGrantTypes = GrantTypes.ClientCredentials,
-					AllowedScopes = { ApiName },
-				};
-
 				// Interactive ASP.NET Core Web App.
 				yield return new()
 				{
