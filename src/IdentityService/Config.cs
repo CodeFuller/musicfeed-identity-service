@@ -1,4 +1,5 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace IdentityService
 {
@@ -6,21 +7,53 @@ namespace IdentityService
 	{
 		private const string ApiName = "musicfeed-api";
 
-		public static IEnumerable<ApiScope> ApiScopes => new List<ApiScope>
+		public static IEnumerable<IdentityResource> IdentityResources
 		{
-			new(name: ApiName, displayName: "Music Feed API"),
-		};
+			get
+			{
+				yield return new IdentityResources.OpenId();
+				yield return new IdentityResources.Profile();
+			}
+		}
+
+		public static IEnumerable<ApiScope> ApiScopes
+		{
+			get
+			{
+				yield return new(name: ApiName, displayName: "Music Feed API");
+			}
+		}
 
 		public static IEnumerable<Client> Clients
 		{
 			get
 			{
+				// Machine to machine client.
 				yield return new()
 				{
 					ClientId = "client",
-					AllowedGrantTypes = GrantTypes.ClientCredentials,
 					ClientSecrets = { new Secret("secret".Sha256()) },
+					AllowedGrantTypes = GrantTypes.ClientCredentials,
 					AllowedScopes = { ApiName },
+				};
+
+				// Interactive ASP.NET Core Web App.
+				yield return new()
+				{
+					ClientId = "web",
+					ClientSecrets = { new Secret("secret".Sha256()) },
+
+					AllowedGrantTypes = GrantTypes.Code,
+
+					RedirectUris = { "https://localhost:5002/signin-oidc" },
+
+					PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
+
+					AllowedScopes = new List<string>
+					{
+						IdentityServerConstants.StandardScopes.OpenId,
+						IdentityServerConstants.StandardScopes.Profile,
+					},
 				};
 			}
 		}
