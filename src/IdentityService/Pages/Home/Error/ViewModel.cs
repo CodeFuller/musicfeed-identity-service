@@ -7,14 +7,17 @@ namespace IdentityService.Pages.Home.Error;
 
 public class ViewModel
 {
-    public ViewModel()
-    {
-    }
+	public ErrorMessage Error { get; set; }
 
-    public ViewModel(string error)
-    {
-        Error = new ErrorMessage { Error = error };
-    }
+	public ViewModel()
+	{
+	}
 
-    public ErrorMessage Error { get; set; }
+	public ViewModel(string error)
+	{
+		Error = new ErrorMessage
+		{
+			Error = error,
+		};
+	}
 }

@@ -13,68 +13,65 @@ namespace IdentityService.Pages.Grants;
 [Authorize]
 public class Index : PageModel
 {
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IClientStore _clients;
-    private readonly IResourceStore _resources;
-    private readonly IEventService _events;
+	private readonly IIdentityServerInteractionService interaction;
+	private readonly IClientStore clients;
+	private readonly IResourceStore resources;
+	private readonly IEventService events;
 
-    public Index(IIdentityServerInteractionService interaction,
-        IClientStore clients,
-        IResourceStore resources,
-        IEventService events)
-    {
-        _interaction = interaction;
-        _clients = clients;
-        _resources = resources;
-        _events = events;
-    }
+	public ViewModel View { get; set; }
 
-    public ViewModel View { get; set; }
-        
-    public async Task OnGet()
-    {
-        var grants = await _interaction.GetAllUserGrantsAsync();
+	[BindProperty]
+	[Required]
+	public string ClientId { get; set; }
 
-        var list = new List<GrantViewModel>();
-        foreach (var grant in grants)
-        {
-            var client = await _clients.FindClientByIdAsync(grant.ClientId);
-            if (client != null)
-            {
-                var resources = await _resources.FindResourcesByScopeAsync(grant.Scopes);
+	public Index(IIdentityServerInteractionService interaction, IClientStore clients, IResourceStore resources, IEventService events)
+	{
+		this.interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+		this.clients = clients ?? throw new ArgumentNullException(nameof(clients));
+		this.resources = resources ?? throw new ArgumentNullException(nameof(resources));
+		this.events = events ?? throw new ArgumentNullException(nameof(events));
+	}
 
-                var item = new GrantViewModel()
-                {
-                    ClientId = client.ClientId,
-                    ClientName = client.ClientName ?? client.ClientId,
-                    ClientLogoUrl = client.LogoUri,
-                    ClientUrl = client.ClientUri,
-                    Description = grant.Description,
-                    Created = grant.CreationTime,
-                    Expires = grant.Expiration,
-                    IdentityGrantNames = resources.IdentityResources.Select(x => x.DisplayName ?? x.Name).ToArray(),
-                    ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName ?? x.Name).ToArray()
-                };
+	public async Task OnGet()
+	{
+		var grants = await interaction.GetAllUserGrantsAsync();
 
-                list.Add(item);
-            }
-        }
+		var list = new List<GrantViewModel>();
+		foreach (var grant in grants)
+		{
+			var client = await clients.FindClientByIdAsync(grant.ClientId);
+			if (client != null)
+			{
+				var resources = await this.resources.FindResourcesByScopeAsync(grant.Scopes);
 
-        View = new ViewModel
-        {
-            Grants = list
-        };
-    }
+				var item = new GrantViewModel
+				{
+					ClientId = client.ClientId,
+					ClientName = client.ClientName ?? client.ClientId,
+					ClientLogoUrl = client.LogoUri,
+					ClientUrl = client.ClientUri,
+					Description = grant.Description,
+					Created = grant.CreationTime,
+					Expires = grant.Expiration,
+					IdentityGrantNames = resources.IdentityResources.Select(x => x.DisplayName ?? x.Name).ToArray(),
+					ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName ?? x.Name).ToArray(),
+				};
 
-    [BindProperty]
-    [Required]
-    public string ClientId { get; set; }
+				list.Add(item);
+			}
+		}
 
-    public async Task<IActionResult> OnPost()
-    {
-        await _interaction.RevokeUserConsentAsync(ClientId);
-        await _events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), ClientId));
+		View = new ViewModel
+		{
+			Grants = list,
+		};
+	}
 
-        return RedirectToPage("/Grants/Index");
-    }
+	public async Task<IActionResult> OnPost()
+	{
+		await interaction.RevokeUserConsentAsync(ClientId);
+		await events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), ClientId));
+
+		return RedirectToPage("/Grants/Index");
+	}
 }

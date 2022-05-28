@@ -15,208 +15,205 @@ namespace IdentityService.Pages.Account.Login;
 [AllowAnonymous]
 public class Index : PageModel
 {
-    private readonly TestUserStore _users;
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IEventService _events;
-    private readonly IAuthenticationSchemeProvider _schemeProvider;
-    private readonly IIdentityProviderStore _identityProviderStore;
+	private readonly IIdentityServerInteractionService interaction;
 
-    public ViewModel View { get; set; }
-        
-    [BindProperty]
-    public InputModel Input { get; set; }
-        
-    public Index(
-        IIdentityServerInteractionService interaction,
-        IAuthenticationSchemeProvider schemeProvider,
-        IIdentityProviderStore identityProviderStore,
-        IEventService events,
-        TestUserStore users = null)
-    {
-        // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-        _users = users ?? throw new Exception("Please call 'AddTestUsers(TestUsers.Users)' on the IIdentityServerBuilder in Startup or remove the TestUserStore from the AccountController.");
-            
-        _interaction = interaction;
-        _schemeProvider = schemeProvider;
-        _identityProviderStore = identityProviderStore;
-        _events = events;
-    }
+	private readonly IEventService events;
 
-    public async Task<IActionResult> OnGet(string returnUrl)
-    {
-        await BuildModelAsync(returnUrl);
-            
-        if (View.IsExternalLoginOnly)
-        {
-            // we only have one option for logging in and it's an external provider
-            return RedirectToPage("/ExternalLogin/Challenge", new { scheme = View.ExternalLoginScheme, returnUrl });
-        }
+	private readonly IAuthenticationSchemeProvider schemeProvider;
 
-        return Page();
-    }
-        
-    public async Task<IActionResult> OnPost()
-    {
-        // check if we are in the context of an authorization request
-        var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
+	private readonly IIdentityProviderStore identityProviderStore;
 
-        // the user clicked the "cancel" button
-        if (Input.Button != "login")
-        {
-            if (context != null)
-            {
-                // if the user cancels, send a result back into IdentityServer as if they 
-                // denied the consent (even if this client does not require consent).
-                // this will send back an access denied OIDC error response to the client.
-                await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
+	private readonly TestUserStore userStore;
 
-                // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                if (context.IsNativeClient())
-                {
-                    // The client is native, so this change in how to
-                    // return the response is for better UX for the end user.
-                    return this.LoadingPage(Input.ReturnUrl);
-                }
+	public ViewModel View { get; set; }
 
-                return Redirect(Input.ReturnUrl);
-            }
-            else
-            {
-                // since we don't have a valid context, then we just go back to the home page
-                return Redirect("~/");
-            }
-        }
+	[BindProperty]
+	public InputModel Input { get; set; }
 
-        if (ModelState.IsValid)
-        {
-            // validate username/password against in-memory store
-            if (_users.ValidateCredentials(Input.Username, Input.Password))
-            {
-                var user = _users.FindByUsername(Input.Username);
-                await _events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
+	public Index(IIdentityServerInteractionService interaction, IAuthenticationSchemeProvider schemeProvider,
+		IIdentityProviderStore identityProviderStore, IEventService events, TestUserStore userStore)
+	{
+		this.interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+		this.schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
+		this.identityProviderStore = identityProviderStore ?? throw new ArgumentNullException(nameof(identityProviderStore));
+		this.events = events ?? throw new ArgumentNullException(nameof(events));
 
-                // only set explicit expiration here if user chooses "remember me". 
-                // otherwise we rely upon expiration configured in cookie middleware.
-                AuthenticationProperties props = null;
-                if (LoginOptions.AllowRememberLogin && Input.RememberLogin)
-                {
-                    props = new AuthenticationProperties
-                    {
-                        IsPersistent = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.Add(LoginOptions.RememberMeLoginDuration)
-                    };
-                };
+		// TODO: Replace with ASP.NET Core Identity.
+		this.userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
+	}
 
-                // issue authentication cookie with subject ID and username
-                var isuser = new IdentityServerUser(user.SubjectId)
-                {
-                    DisplayName = user.Username
-                };
+#pragma warning disable CA1054 // URI-like parameters should not be strings
+	public async Task<IActionResult> OnGet(string returnUrl)
+#pragma warning restore CA1054 // URI-like parameters should not be strings
+	{
+		await BuildModelAsync(returnUrl);
 
-                await HttpContext.SignInAsync(isuser, props);
+		if (View.IsExternalLoginOnly)
+		{
+			// We only have one option for logging in and it's an external provider.
+			return RedirectToPage("/ExternalLogin/Challenge", new { scheme = View.ExternalLoginScheme, returnUrl });
+		}
 
-                if (context != null)
-                {
-                    if (context.IsNativeClient())
-                    {
-                        // The client is native, so this change in how to
-                        // return the response is for better UX for the end user.
-                        return this.LoadingPage(Input.ReturnUrl);
-                    }
+		return Page();
+	}
 
-                    // we can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null
-                    return Redirect(Input.ReturnUrl);
-                }
+	public async Task<IActionResult> OnPost()
+	{
+		// Check if we are in the context of an authorization request.
+		var context = await interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 
-                // request for a local page
-                if (Url.IsLocalUrl(Input.ReturnUrl))
-                {
-                    return Redirect(Input.ReturnUrl);
-                }
-                else if (string.IsNullOrEmpty(Input.ReturnUrl))
-                {
-                    return Redirect("~/");
-                }
-                else
-                {
-                    // user might have clicked on a malicious link - should be logged
-                    throw new Exception("invalid return URL");
-                }
-            }
+		// The user clicked the "cancel" button.
+		if (Input.Button != "login")
+		{
+			if (context != null)
+			{
+				// If the user cancels, send a result back into IdentityServer as if they
+				// denied the consent (even if this client does not require consent).
+				// This will send back an access denied OIDC error response to the client.
+				await interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
 
-            await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, "invalid credentials", clientId:context?.Client.ClientId));
-            ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
-        }
+				// We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
+				if (context.IsNativeClient())
+				{
+					// The client is native, so this change in how to return the response is for better UX for the end user.
+					return this.LoadingPage(Input.ReturnUrl);
+				}
 
-        // something went wrong, show form with error
-        await BuildModelAsync(Input.ReturnUrl);
-        return Page();
-    }
-        
-    private async Task BuildModelAsync(string returnUrl)
-    {
-        Input = new InputModel
-        {
-            ReturnUrl = returnUrl
-        };
-            
-        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
-        {
-            var local = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
+				return Redirect(Input.ReturnUrl);
+			}
 
-            // this is meant to short circuit the UI and only trigger the one external IdP
-            View = new ViewModel
-            {
-                EnableLocalLogin = local,
-            };
+			// Since we don't have a valid context, then we just go back to the home page.
+			return Redirect("~/");
+		}
 
-            Input.Username = context?.LoginHint;
+		if (ModelState.IsValid)
+		{
+			// Validate username/password against in-memory store.
+			if (userStore.ValidateCredentials(Input.Username, Input.Password))
+			{
+				var user = userStore.FindByUsername(Input.Username);
+				await events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
 
-            if (!local)
-            {
-                View.ExternalProviders = new[] { new ViewModel.ExternalProvider { AuthenticationScheme = context.IdP } };
-            }
+				// Only set explicit expiration here if user chooses "remember me".
+				// Otherwise we rely upon expiration configured in cookie middleware.
+				AuthenticationProperties props = null;
+				if (LoginOptions.AllowRememberLogin && Input.RememberLogin)
+				{
+					props = new AuthenticationProperties
+					{
+						IsPersistent = true,
+						ExpiresUtc = DateTimeOffset.UtcNow.Add(LoginOptions.RememberMeLoginDuration),
+					};
+				}
 
-            return;
-        }
+				// Issue authentication cookie with subject ID and username.
+				var identityServerUser = new IdentityServerUser(user.SubjectId)
+				{
+					DisplayName = user.Username,
+				};
 
-        var schemes = await _schemeProvider.GetAllSchemesAsync();
+				await HttpContext.SignInAsync(identityServerUser, props);
 
-        var providers = schemes
-            .Where(x => x.DisplayName != null)
-            .Select(x => new ViewModel.ExternalProvider
-            {
-                DisplayName = x.DisplayName ?? x.Name,
-                AuthenticationScheme = x.Name
-            }).ToList();
+				if (context != null)
+				{
+					if (context.IsNativeClient())
+					{
+						// The client is native, so this change in how to return the response is for better UX for the end user.
+						return this.LoadingPage(Input.ReturnUrl);
+					}
 
-        var dyanmicSchemes = (await _identityProviderStore.GetAllSchemeNamesAsync())
-            .Where(x => x.Enabled)
-            .Select(x => new ViewModel.ExternalProvider
-            {
-                AuthenticationScheme = x.Scheme,
-                DisplayName = x.DisplayName
-            });
-        providers.AddRange(dyanmicSchemes);
+					// We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
+					return Redirect(Input.ReturnUrl);
+				}
 
+				// Request for a local page.
+				if (Url.IsLocalUrl(Input.ReturnUrl))
+				{
+					return Redirect(Input.ReturnUrl);
+				}
 
-        var allowLocal = true;
-        var client = context?.Client;
-        if (client != null)
-        {
-            allowLocal = client.EnableLocalLogin;
-            if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
-            {
-                providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
-            }
-        }
+				if (string.IsNullOrEmpty(Input.ReturnUrl))
+				{
+					return Redirect("~/");
+				}
 
-        View = new ViewModel
-        {
-            AllowRememberLogin = LoginOptions.AllowRememberLogin,
-            EnableLocalLogin = allowLocal && LoginOptions.AllowLocalLogin,
-            ExternalProviders = providers.ToArray()
-        };
-    }
+				// User might have clicked on a malicious link - should be logged.
+				throw new InvalidOperationException("Invalid return URL");
+			}
+
+			await events.RaiseAsync(new UserLoginFailureEvent(Input.Username, "invalid credentials", clientId: context?.Client.ClientId));
+			ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
+		}
+
+		// Something went wrong, show form with error.
+		await BuildModelAsync(Input.ReturnUrl);
+		return Page();
+	}
+
+	private async Task BuildModelAsync(string returnUrl)
+	{
+		Input = new InputModel
+		{
+			ReturnUrl = returnUrl,
+		};
+
+		var context = await interaction.GetAuthorizationContextAsync(returnUrl);
+		if (context?.IdP != null && await schemeProvider.GetSchemeAsync(context.IdP) != null)
+		{
+			var local = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
+
+			// This is meant to short circuit the UI and only trigger the one external IdP.
+			View = new ViewModel
+			{
+				EnableLocalLogin = local,
+			};
+
+			Input.Username = context?.LoginHint;
+
+			if (!local)
+			{
+				View.ExternalProviders = new[] { new ViewModel.ExternalProvider { AuthenticationScheme = context.IdP } };
+			}
+
+			return;
+		}
+
+		var schemes = await schemeProvider.GetAllSchemesAsync();
+
+		var providers = schemes
+			.Where(x => x.DisplayName != null)
+			.Select(x => new ViewModel.ExternalProvider
+			{
+				DisplayName = x.DisplayName ?? x.Name,
+				AuthenticationScheme = x.Name,
+			}).ToList();
+
+		var dynamicSchemes = (await identityProviderStore.GetAllSchemeNamesAsync())
+			.Where(x => x.Enabled)
+			.Select(x => new ViewModel.ExternalProvider
+			{
+				AuthenticationScheme = x.Scheme,
+				DisplayName = x.DisplayName,
+			});
+
+		providers.AddRange(dynamicSchemes);
+
+		var allowLocal = true;
+		var client = context?.Client;
+		if (client != null)
+		{
+			allowLocal = client.EnableLocalLogin;
+			if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
+			{
+				providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
+			}
+		}
+
+		View = new ViewModel
+		{
+			AllowRememberLogin = LoginOptions.AllowRememberLogin,
+			EnableLocalLogin = allowLocal && LoginOptions.AllowLocalLogin,
+			ExternalProviders = providers.ToArray(),
+		};
+	}
 }
