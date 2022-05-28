@@ -20,12 +20,14 @@ builder.Services.AddAuthentication(options =>
 		options.ClientSecret = "secret";
 		options.ResponseType = "code";
 
+		options.SaveTokens = true;
+
 		options.Scope.Clear();
 		options.Scope.Add("openid");
 		options.Scope.Add("profile");
+		options.Scope.Add("musicfeed-api");
+		options.Scope.Add("offline_access");
 		options.GetClaimsFromUserInfoEndpoint = true;
-
-		options.SaveTokens = true;
 	});
 
 var app = builder.Build();
