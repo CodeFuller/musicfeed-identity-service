@@ -1,19 +1,34 @@
 using Duende.IdentityServer;
 using IdentityService;
-using IdentityService.Internal;
-using IdentityService.Pages;
+using IdentityService.Data;
+using IdentityService.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+	options.UseSqlite(builder.Configuration.GetConnectionString("identityDB")));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+	.AddEntityFrameworkStores<ApplicationDbContext>()
+	.AddDefaultTokenProviders();
+
 builder.Services
-	.AddIdentityServer()
+	.AddIdentityServer(options =>
+	{
+		options.Events.RaiseErrorEvents = true;
+		options.Events.RaiseInformationEvents = true;
+		options.Events.RaiseFailureEvents = true;
+		options.Events.RaiseSuccessEvents = true;
+		options.EmitStaticAudienceClaim = true;
+	})
 	.AddInMemoryIdentityResources(Config.IdentityResources)
 	.AddInMemoryApiScopes(Config.ApiScopes)
 	.AddInMemoryClients(Config.Clients)
-	.AddTestUsers(TestUsers.Users)
-	.AddProfileService<ProfileService>();
+	.AddAspNetIdentity<ApplicationUser>();
 
 builder.Services
 	.AddAuthentication()

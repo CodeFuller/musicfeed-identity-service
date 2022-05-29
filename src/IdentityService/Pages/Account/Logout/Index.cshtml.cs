@@ -2,8 +2,10 @@ using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Extensions;
 using Duende.IdentityServer.Services;
 using IdentityModel;
+using IdentityService.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,16 +15,20 @@ namespace IdentityService.Pages.Account.Logout;
 [AllowAnonymous]
 public class Index : PageModel
 {
+	private readonly SignInManager<ApplicationUser> signInManager;
+
 	private readonly IIdentityServerInteractionService interaction;
+
 	private readonly IEventService events;
 
 	[BindProperty]
 	public string LogoutId { get; set; }
 
-	public Index(IIdentityServerInteractionService interaction, IEventService events)
+	public Index(SignInManager<ApplicationUser> signInManager, IIdentityServerInteractionService interaction, IEventService events)
 	{
-		this.interaction = interaction;
-		this.events = events;
+		this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+		this.interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+		this.events = events ?? throw new ArgumentNullException(nameof(events));
 	}
 
 	public async Task<IActionResult> OnGet(string logoutId)
@@ -66,7 +72,7 @@ public class Index : PageModel
 			LogoutId ??= await interaction.CreateLogoutContextAsync();
 
 			// Delete local authentication cookie.
-			await HttpContext.SignOutAsync();
+			await signInManager.SignOutAsync();
 
 			// Raise the logout event.
 			await events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));

@@ -1,11 +1,11 @@
-using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
-using Duende.IdentityServer.Test;
+using IdentityService.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,31 +15,33 @@ namespace IdentityService.Pages.Account.Login;
 [AllowAnonymous]
 public class Index : PageModel
 {
-	private readonly IIdentityServerInteractionService interaction;
+	private readonly UserManager<ApplicationUser> userManager;
 
-	private readonly IEventService events;
+	private readonly SignInManager<ApplicationUser> signInManager;
+
+	private readonly IIdentityServerInteractionService interaction;
 
 	private readonly IAuthenticationSchemeProvider schemeProvider;
 
 	private readonly IIdentityProviderStore identityProviderStore;
 
-	private readonly TestUserStore userStore;
+	private readonly IEventService events;
 
 	public ViewModel View { get; set; }
 
 	[BindProperty]
 	public InputModel Input { get; set; }
 
-	public Index(IIdentityServerInteractionService interaction, IAuthenticationSchemeProvider schemeProvider,
-		IIdentityProviderStore identityProviderStore, IEventService events, TestUserStore userStore)
+	public Index(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+		IIdentityServerInteractionService interaction, IAuthenticationSchemeProvider schemeProvider,
+		IIdentityProviderStore identityProviderStore, IEventService events)
 	{
+		this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+		this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
 		this.interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
 		this.schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
 		this.identityProviderStore = identityProviderStore ?? throw new ArgumentNullException(nameof(identityProviderStore));
 		this.events = events ?? throw new ArgumentNullException(nameof(events));
-
-		// TODO: Replace with ASP.NET Core Identity.
-		this.userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
 	}
 
 #pragma warning disable CA1054 // URI-like parameters should not be strings
@@ -88,31 +90,11 @@ public class Index : PageModel
 
 		if (ModelState.IsValid)
 		{
-			// Validate username/password against in-memory store.
-			if (userStore.ValidateCredentials(Input.Username, Input.Password))
+			var result = await signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberLogin, lockoutOnFailure: true);
+			if (result.Succeeded)
 			{
-				var user = userStore.FindByUsername(Input.Username);
-				await events.RaiseAsync(new UserLoginSuccessEvent(user.Username, user.SubjectId, user.Username, clientId: context?.Client.ClientId));
-
-				// Only set explicit expiration here if user chooses "remember me".
-				// Otherwise we rely upon expiration configured in cookie middleware.
-				AuthenticationProperties props = null;
-				if (LoginOptions.AllowRememberLogin && Input.RememberLogin)
-				{
-					props = new AuthenticationProperties
-					{
-						IsPersistent = true,
-						ExpiresUtc = DateTimeOffset.UtcNow.Add(LoginOptions.RememberMeLoginDuration),
-					};
-				}
-
-				// Issue authentication cookie with subject ID and username.
-				var identityServerUser = new IdentityServerUser(user.SubjectId)
-				{
-					DisplayName = user.Username,
-				};
-
-				await HttpContext.SignInAsync(identityServerUser, props);
+				var user = await userManager.FindByNameAsync(Input.Username);
+				await events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName, clientId: context?.Client.ClientId));
 
 				if (context != null)
 				{

@@ -2,10 +2,11 @@ using System.Security.Claims;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Services;
-using Duende.IdentityServer.Test;
 using IdentityModel;
+using IdentityService.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -15,21 +16,23 @@ namespace IdentityService.Pages.ExternalLogin;
 [SecurityHeaders]
 public class Callback : PageModel
 {
+	private readonly UserManager<ApplicationUser> userManager;
+
+	private readonly SignInManager<ApplicationUser> signInManager;
+
 	private readonly IIdentityServerInteractionService interaction;
 
 	private readonly IEventService events;
 
-	private readonly TestUserStore userStore;
-
 	private readonly ILogger<Callback> logger;
 
-	public Callback(IIdentityServerInteractionService interaction, IEventService events, TestUserStore userStore, ILogger<Callback> logger)
+	public Callback(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+		IIdentityServerInteractionService interaction, IEventService events, ILogger<Callback> logger)
 	{
+		this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+		this.signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
 		this.interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
 		this.events = events ?? throw new ArgumentNullException(nameof(events));
-
-		// TODO: Replace with ASP.NET Core Identity.
-		this.userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
 		this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 	}
 
@@ -62,17 +65,13 @@ public class Callback : PageModel
 		var providerUserId = userIdClaim.Value;
 
 		// Find external user.
-		var user = userStore.FindByExternalProvider(provider, providerUserId);
+		var user = await userManager.FindByLoginAsync(provider, providerUserId);
 		if (user == null)
 		{
 			// This might be where you might initiate a custom workflow for user registration.
 			// In this sample we don't show how that would be done, as our sample implementation.
 			// Simply auto-provisions new external user.
-			//
-			// Remove the user id claim so we don't include it as an extra claim if/when we provision the user.
-			var claims = externalUser.Claims.ToList();
-			claims.Remove(userIdClaim);
-			user = userStore.AutoProvisionUser(provider, providerUserId, claims.ToList());
+			user = await AutoProvisionUserAsync(provider, providerUserId, externalUser.Claims.ToList());
 		}
 
 		// This allows us to collect any additional claims or properties.
@@ -83,14 +82,7 @@ public class Callback : PageModel
 		CaptureExternalLoginContext(result, additionalLocalClaims, localSignInProps);
 
 		// Issue authentication cookie for user.
-		var identityServerUser = new IdentityServerUser(user.SubjectId)
-		{
-			DisplayName = user.Username,
-			IdentityProvider = provider,
-			AdditionalClaims = additionalLocalClaims,
-		};
-
-		await HttpContext.SignInAsync(identityServerUser, localSignInProps);
+		await signInManager.SignInWithClaimsAsync(user, localSignInProps, additionalLocalClaims);
 
 		// Delete temporary cookie used during external authentication.
 		await HttpContext.SignOutAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
@@ -100,7 +92,7 @@ public class Callback : PageModel
 
 		// Check if external login is in the context of an OIDC request.
 		var context = await interaction.GetAuthorizationContextAsync(returnUrl);
-		await events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.SubjectId, user.Username, true, context?.Client.ClientId));
+		await events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.Id, user.UserName, true, context?.Client.ClientId));
 
 		if (context != null)
 		{
@@ -114,10 +106,87 @@ public class Callback : PageModel
 		return Redirect(returnUrl);
 	}
 
+	private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId, IReadOnlyCollection<Claim> claims)
+	{
+		var sub = Guid.NewGuid().ToString();
+
+		var user = new ApplicationUser
+		{
+			Id = sub,
+
+			// Don't need a username, since the user will be using an external provider to login.
+			UserName = sub,
+		};
+
+		// Email.
+		var email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ??
+		            claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+		if (email != null)
+		{
+			user.Email = email;
+		}
+
+		// Create a list of claims that we want to transfer into our store.
+		var filtered = new List<Claim>();
+
+		// User's display name.
+		var name = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Name)?.Value ??
+		           claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+		if (name != null)
+		{
+			filtered.Add(new Claim(JwtClaimTypes.Name, name));
+		}
+		else
+		{
+			var first = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ??
+			            claims.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value;
+			var last = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ??
+			           claims.FirstOrDefault(x => x.Type == ClaimTypes.Surname)?.Value;
+			if (first != null && last != null)
+			{
+				filtered.Add(new Claim(JwtClaimTypes.Name, first + " " + last));
+			}
+			else if (first != null)
+			{
+				filtered.Add(new Claim(JwtClaimTypes.Name, first));
+			}
+			else if (last != null)
+			{
+				filtered.Add(new Claim(JwtClaimTypes.Name, last));
+			}
+		}
+
+		var identityResult = await userManager.CreateAsync(user);
+		if (!identityResult.Succeeded)
+		{
+			throw new InvalidOperationException(identityResult.Errors.First().Description);
+		}
+
+		if (filtered.Any())
+		{
+			identityResult = await userManager.AddClaimsAsync(user, filtered);
+			if (!identityResult.Succeeded)
+			{
+				throw new InvalidOperationException(identityResult.Errors.First().Description);
+			}
+		}
+
+		identityResult = await userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
+		if (!identityResult.Succeeded)
+		{
+			throw new InvalidOperationException(identityResult.Errors.First().Description);
+		}
+
+		return user;
+	}
+
 	// If the external login is OIDC-based, there are certain things we need to preserve to make logout work.
 	// This will be different for WS-Fed, SAML2p or other protocols
 	private static void CaptureExternalLoginContext(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
 	{
+		// Capture the idp used to login, so the session knows where the user came from.
+		localClaims.Add(new Claim(JwtClaimTypes.IdentityProvider, externalResult.Properties.Items["scheme"]));
+
 		// If the external system sent a session id claim, copy it over so we can use it for single sign-out.
 		var sid = externalResult.Principal.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.SessionId);
 		if (sid != null)
