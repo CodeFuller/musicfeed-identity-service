@@ -50,13 +50,8 @@ public class Index : PageModel
 	{
 		await BuildModelAsync(returnUrl);
 
-		if (View.IsExternalLoginOnly)
-		{
-			// We only have one option for logging in and it's an external provider.
-			return RedirectToPage("/ExternalLogin/Challenge", new { scheme = View.ExternalLoginScheme, returnUrl });
-		}
-
-		return Page();
+		// We only have one option for logging in and it's an external provider.
+		return RedirectToPage("/ExternalLogin/Challenge", new { scheme = View.ExternalLoginScheme, returnUrl });
 	}
 
 	public async Task<IActionResult> OnPost()
@@ -142,20 +137,19 @@ public class Index : PageModel
 		var context = await interaction.GetAuthorizationContextAsync(returnUrl);
 		if (context?.IdP != null && await schemeProvider.GetSchemeAsync(context.IdP) != null)
 		{
-			var local = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
-
 			// This is meant to short circuit the UI and only trigger the one external IdP.
 			View = new ViewModel
 			{
-				EnableLocalLogin = local,
+				ExternalProviders = new[]
+				{
+					new ViewModel.ExternalProvider
+					{
+						AuthenticationScheme = context.IdP,
+					},
+				},
 			};
 
-			Input.Username = context?.LoginHint;
-
-			if (!local)
-			{
-				View.ExternalProviders = new[] { new ViewModel.ExternalProvider { AuthenticationScheme = context.IdP } };
-			}
+			Input.Username = context.LoginHint;
 
 			return;
 		}
@@ -180,21 +174,15 @@ public class Index : PageModel
 
 		providers.AddRange(dynamicSchemes);
 
-		var allowLocal = true;
 		var client = context?.Client;
-		if (client != null)
+		if (client?.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
 		{
-			allowLocal = client.EnableLocalLogin;
-			if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
-			{
-				providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
-			}
+			providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
 		}
 
 		View = new ViewModel
 		{
 			AllowRememberLogin = LoginOptions.AllowRememberLogin,
-			EnableLocalLogin = allowLocal && LoginOptions.AllowLocalLogin,
 			ExternalProviders = providers.ToArray(),
 		};
 	}
