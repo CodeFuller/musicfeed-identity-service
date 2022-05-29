@@ -8,7 +8,7 @@
 
     <PropertyGroup>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-        <CodeAnalysisRuleSet>..\..\IdentityService.src.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisRuleSet>..\..\MusicFeed.IdentityService.src.ruleset</CodeAnalysisRuleSet>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <WarningsAsErrors />
     </PropertyGroup>
