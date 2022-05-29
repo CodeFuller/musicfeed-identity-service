@@ -1,5 +1,8 @@
 using Duende.IdentityServer;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MusicFeed.IdentityService;
 using MusicFeed.IdentityService.Abstractions;
 using MusicFeed.IdentityService.Infrastructure.PostgreSql;
@@ -19,7 +22,11 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 {
 	services.AddRazorPages();
 
-	services.AddPostgreSqlDal(configuration.GetConnectionString("identityDB"));
+	var connectionString = configuration.GetConnectionString("identityDB");
+	services.AddPostgreSqlDal(connectionString);
+
+	services.AddHealthChecks()
+		.AddNpgSql(connectionString, failureStatus: HealthStatus.Unhealthy, tags: new[] { "ready" }, timeout: TimeSpan.FromSeconds(5));
 
 	services
 		.AddIdentity<ApplicationUser, IdentityRole>()
@@ -73,4 +80,19 @@ void ConfigureEndpoints(IEndpointRouteBuilder endpointRouteBuilder)
 	endpointRouteBuilder
 		.MapRazorPages()
 		.RequireAuthorization();
+
+	app.UseEndpoints(endpoints =>
+	{
+		endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+		{
+			Predicate = check => check.Tags.Contains("ready"),
+			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+		});
+
+		endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+		{
+			Predicate = check => check.Tags.Contains("live"),
+			ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+		});
+	});
 }
