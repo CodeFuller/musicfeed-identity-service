@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace IdentityService.Models;
+namespace IdentityService.Abstractions;
 
 public class ApplicationUser : IdentityUser
 {

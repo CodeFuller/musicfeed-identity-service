@@ -1,19 +1,18 @@
 using Duende.IdentityServer;
 using IdentityService;
-using IdentityService.Data;
-using IdentityService.Models;
+using IdentityService.Abstractions;
+using IdentityService.Infrastructure.PostgreSql;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlite(builder.Configuration.GetConnectionString("identityDB")));
+builder.Services.AddPostgreSqlDal(builder.Configuration.GetConnectionString("identityDB"));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-	.AddEntityFrameworkStores<ApplicationDbContext>()
+builder.Services
+	.AddIdentity<ApplicationUser, IdentityRole>()
+	.AddEntityFrameworkStores<IdentityDbContext>()
 	.AddDefaultTokenProviders();
 
 builder.Services
