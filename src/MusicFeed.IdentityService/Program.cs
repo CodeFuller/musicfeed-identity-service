@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using MusicFeed.IdentityService;
 using MusicFeed.IdentityService.Abstractions;
 using MusicFeed.IdentityService.Infrastructure.PostgreSql;
+using MusicFeed.IdentityService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ builder.Services
 	.AddEntityFrameworkStores<IdentityDbContext>()
 	.AddDefaultTokenProviders();
 
+var identityServerSettings = new IdentityServerSettings();
+builder.Configuration.Bind(identityServerSettings);
+
 builder.Services
 	.AddIdentityServer(options =>
 	{
@@ -26,7 +30,7 @@ builder.Services
 	})
 	.AddInMemoryIdentityResources(Config.IdentityResources)
 	.AddInMemoryApiScopes(Config.ApiScopes)
-	.AddInMemoryClients(Config.Clients)
+	.AddInMemoryClients(identityServerSettings.Clients)
 	.AddAspNetIdentity<ApplicationUser>();
 
 builder.Services
@@ -52,6 +56,8 @@ app.UseRouting();
 app.UseIdentityServer();
 app.UseAuthorization();
 
-app.MapRazorPages().RequireAuthorization();
+app
+	.MapRazorPages()
+	.RequireAuthorization();
 
 app.Run();
