@@ -22,11 +22,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 {
 	services.AddRazorPages();
 
-	var connectionString = configuration.GetConnectionString("identityDB");
-	services.AddPostgreSqlDal(connectionString);
+	services.AddPostgreSqlDal(ConnectionStringFactory());
 
 	services.AddHealthChecks()
-		.AddNpgSql(connectionString, failureStatus: HealthStatus.Unhealthy, tags: new[] { "ready" }, timeout: TimeSpan.FromSeconds(5));
+		.AddNpgSql(ConnectionStringFactory(), failureStatus: HealthStatus.Unhealthy, tags: new[] { "ready" }, timeout: TimeSpan.FromSeconds(5));
 
 	services
 		.AddIdentity<ApplicationUser, IdentityRole>()
@@ -59,6 +58,15 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 			options.ClientId = configuration["authentication:google:clientId"];
 			options.ClientSecret = configuration["authentication:google:clientSecret"];
 		});
+}
+
+Func<IServiceProvider, string> ConnectionStringFactory()
+{
+	return serviceProvider =>
+	{
+		var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+		return configuration.GetConnectionString("identityDB");
+	};
 }
 
 void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment environment)

@@ -1,0 +1,19 @@
+# docker-compose -f docker-compose.yaml up
+# dotnet ef database update -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+
+version: '3.5'
+
+services:
+  postgres:
+    image: postgres:latest
+    networks:
+      - musicfeed-network
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: Qwerty123
+
+networks:
+  musicfeed-network:
+    name: musicfeed-network
+    driver: bridge

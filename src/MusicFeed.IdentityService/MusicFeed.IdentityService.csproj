@@ -28,4 +28,8 @@
         <ProjectReference Include="..\MusicFeed.IdentityService.Infrastructure.PostgreSql\MusicFeed.IdentityService.Infrastructure.PostgreSql.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="MusicFeed.IdentityService.IntegrationTests" />
+    </ItemGroup>
+
 </Project>

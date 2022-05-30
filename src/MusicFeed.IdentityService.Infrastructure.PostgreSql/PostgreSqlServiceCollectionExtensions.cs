@@ -5,9 +5,12 @@ namespace MusicFeed.IdentityService.Infrastructure.PostgreSql;
 
 public static class PostgreSqlServiceCollectionExtensions
 {
-	public static IServiceCollection AddPostgreSqlDal(this IServiceCollection services, string connectionString)
+	public static IServiceCollection AddPostgreSqlDal(this IServiceCollection services, Func<IServiceProvider, string> connectionStringFactory)
 	{
-		services.AddDbContext<IdentityDbContext>(options => options.UseNpgsql(connectionString));
+		services.AddDbContext<IdentityDbContext>((serviceProvider, options) =>
+		{
+			options.UseNpgsql(connectionStringFactory(serviceProvider));
+		});
 
 		return services;
 	}
