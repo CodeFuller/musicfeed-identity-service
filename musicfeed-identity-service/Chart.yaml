@@ -1,0 +1,8 @@
+apiVersion: v2
+name: musicfeed-identity-service
+description: A Helm chart for musicfeed-identity-service service
+
+type: application
+
+version: 1.0.0
+appVersion: "0.0.1"
