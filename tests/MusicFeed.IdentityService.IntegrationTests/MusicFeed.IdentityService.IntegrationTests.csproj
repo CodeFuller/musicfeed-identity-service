@@ -27,4 +27,10 @@
       <ProjectReference Include="..\..\src\MusicFeed.IdentityService\MusicFeed.IdentityService.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="ExpectedDiscoveryDocument.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
