@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Text.Json;
+﻿using System.IO;
 using System.Threading.Tasks;
-using FluentAssertions;
+using FluentAssertions.Json;
 using IdentityModel.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace MusicFeed.IdentityService.IntegrationTests
 {
@@ -25,21 +24,12 @@ namespace MusicFeed.IdentityService.IntegrationTests
 
 			// Assert
 
-			var expectedJson = await File.ReadAllTextAsync("ExpectedDiscoveryDocument.json");
+			var expectedDocumentJson = await File.ReadAllTextAsync("ExpectedDiscoveryDocument.json");
+			var expectedDocument = JToken.Parse(expectedDocumentJson);
 
-			var actualJson = ToIndentedString(discoveryDocumentResponse.Json);
+			var actualDocument = JToken.Parse(discoveryDocumentResponse.Raw);
 
-			actualJson.Should().Be(expectedJson);
-		}
-
-		private static string ToIndentedString(JsonElement element)
-		{
-			if (element.ValueKind == JsonValueKind.Undefined)
-			{
-				return String.Empty;
-			}
-
-			return JsonSerializer.Serialize(element, new JsonSerializerOptions { WriteIndented = true });
+			expectedDocument.Should().BeEquivalentTo(actualDocument);
 		}
 	}
 }
