@@ -76,9 +76,7 @@ stages:
         command: build
         Dockerfile: $(DockerfilePath)
         buildContext: '.'
-        tags: |
-          $(TestsImageTag)
-        arguments: --target build --network=host
+        arguments: --target build --network=host --tag $(TestsImageTag)
         addPipelineData: false
         addBaseImageData: false
 
@@ -88,9 +86,7 @@ stages:
         command: build
         Dockerfile: $(DockerfilePath)
         buildContext: '.'
-        tags: |
-          $(TestsImageTag)
-        arguments: --target test --network=host
+        arguments: --target test --network=host --tag $(TestsImageTag)
         addPipelineData: false
         addBaseImageData: false
 
