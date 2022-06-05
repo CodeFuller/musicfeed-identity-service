@@ -1,0 +1,109 @@
+name: $(Build.BuildId)
+
+trigger:
+  branches:
+    include:
+      - master
+
+pool:
+  name: Azure Pipelines
+  vmImage: ubuntu-latest
+
+parameters:
+  - name: PublishArtifacts
+    displayName: Publish Artifacts
+    type: boolean
+    default: true
+
+variables:
+  - group: MusicFeedVariables
+  - name: ReleaseBranchName
+    value: main
+    readonly: true
+  - name: DockerfilePath
+    value: src/MusicFeed.IdentityService/Dockerfile
+    readonly: true
+  - name: DockerComposeFilePath
+    value: tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yml
+    readonly: true
+  - name: DockerImageName
+    value: musicfeed-identity-service
+    readonly: true
+
+stages:
+- stage: BuildDockerImageStage
+  displayName: Build Docker Image
+  jobs:
+  - job: BuildDockerImageJob
+    displayName: Build Docker Image
+    workspace:
+      clean: all
+    steps:
+    - task: PowerShell@2
+      displayName: Define Build Version
+      inputs:
+        targetType: 'inline'
+        script: |
+          $appVersion = (Select-String -Path '$(DockerImageName)/Chart.yaml' -Pattern '^appVersion: "(\d+\.\d+\.\d+)"$').matches.groups[1].Value
+
+          if ('$(Build.SourceBranchName)' -ine '$(ReleaseBranchName)') {
+              $buildVersionSuffix = '-preview'
+              $helmChartVersionSuffix = "$buildVersionSuffix-$(Build.BuildId)"
+          }
+
+          $buildVersion = "$appVersion.$(Build.BuildId)$buildVersionSuffix"
+
+          Write-Host "##vso[build.updatebuildnumber]$buildVersion"
+          Write-Host "##vso[task.setvariable variable=BuildVersion]$buildVersion"
+          # TODO: Do we need FullDockerImageName variable?
+          Write-Host "##vso[task.setvariable variable=FullDockerImageName]$(GlobalConfig.DockerRepo)/$(DockerImageName):$buildVersion"
+          Write-Host "##vso[task.setvariable variable=HelmChartVersion]$appVersion$helmChartVersionSuffix"
+          Write-Host "##vso[task.setvariable variable=TestsImageTag]$(DockerImageName)-test-results:$buildVersion"
+          Write-Host "##vso[task.setvariable variable=TestsContainerName]$(DockerImageName)-test-results-$buildVersion"
+
+    - task: DockerCompose@0
+      displayName: Start IT Dependencies
+      inputs:
+        containerregistrytype: Container Registry
+        dockerComposeFile: $(DockerComposeFilePath)
+        dockerComposeCommand: up
+        arguments: --detach
+
+    - script: |
+        docker build --target build --network=host --tag $(TestsImageTag) -f $(DockerfilePath) .
+        docker create -ti --name $(TestsContainerName) $(TestsImageTag)
+        docker cp $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
+        docker rm -fv $(TestsContainerName)
+      failOnStderr: true
+      displayName: Build & Test
+
+    - task: DockerCompose@0
+      displayName: Stop IT Dependencies
+      inputs:
+        containerregistrytype: Container Registry
+        dockerComposeFile: $(DockerComposeFilePath)
+        dockerComposeCommand: down
+
+    - task: PublishTestResults@2
+      displayName: Publish Test Results
+      inputs:
+        testResultsFormat: VSTest
+        testResultsFiles: '*.trx'
+        searchFolder: $(Build.ArtifactStagingDirectory)
+        mergeTestResults: true
+        failTaskOnFailedTests: true
+
+    # TODO: Probably the Docker cache will not be used because the arguments has changed.
+    - task: Docker@2
+      displayName: Build & Push Docker Image
+      inputs:
+        containerRegistry: codefuller @ hub.docker.com
+        repository: $(GlobalConfig.DockerRepo)/$(DockerImageName)
+        Dockerfile: $(DockerfilePath)
+        buildContext: .
+        tags: |
+          $(ServiceVersion)
+          latest
+        addPipelineData: false
+
+    # TODO: Build & Push Helm chart.
