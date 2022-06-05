@@ -102,7 +102,7 @@ stages:
         Dockerfile: $(DockerfilePath)
         buildContext: .
         tags: |
-          $(ServiceVersion)
+          $(BuildVersion)
           latest
         addPipelineData: false
 
