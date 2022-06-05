@@ -70,9 +70,30 @@ stages:
         dockerComposeCommand: up
         arguments: --detach
 
+    - task: Docker@2
+      displayName: Build Service
+      inputs:
+        command: build
+        Dockerfile: $(DockerfilePath)
+        buildContext: '.'
+        tags: $(TestsImageTag)
+        arguments: --target build --network=host
+        addPipelineData: false
+        addBaseImageData: false
+
+    - task: Docker@2
+      displayName: Test Service
+      inputs:
+        command: build
+        Dockerfile: $(DockerfilePath)
+        buildContext: '.'
+        tags: $(TestsImageTag)
+        arguments: --target test --network=host
+        addPipelineData: false
+        addBaseImageData: false
+
     # TODO: Split to separate steps.
     - script: |
-        docker build --target build --network=host --tag $(TestsImageTag) -f $(DockerfilePath) .
         docker create --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
         docker cp $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
         docker rm --force --volumes $(TestsContainerName)

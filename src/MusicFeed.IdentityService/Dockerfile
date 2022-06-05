@@ -20,6 +20,8 @@ RUN dotnet restore "MusicFeed.IdentityService.Build.sln"
 
 RUN dotnet build "MusicFeed.IdentityService.Build.sln" --no-restore --configuration Release
 
+FROM build AS test
+
 # Applying EF Core migrations necessary for IT.
 RUN dotnet tool install -g dotnet-ef
 ENV PATH $PATH:/root/.dotnet/tools
