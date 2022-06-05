@@ -38,6 +38,8 @@ stages:
     displayName: Build Docker Image
     workspace:
       clean: all
+    variables:
+      disable.coverage.autogenerate: true
     steps:
     - task: PowerShell@2
       displayName: Define Build Version
@@ -84,22 +86,37 @@ stages:
         dockerComposeFile: $(DockerComposeFilePath)
         dockerComposeCommand: down
 
-    # TODO: Fix test results & code coverage.
     - task: PublishTestResults@2
       displayName: Publish Test Results
       inputs:
         testResultsFormat: VSTest
-        testResultsFiles: '*.trx'
+        testResultsFiles: TestResults/**/*.trx
         searchFolder: $(Build.ArtifactStagingDirectory)
         mergeTestResults: true
         failTaskOnFailedTests: true
+
+    - task: reportgenerator@5
+      displayName: Merge Code Coverage Reports
+      inputs:
+        reports: $(Build.ArtifactStagingDirectory)/TestResults/**/coverage.cobertura.xml
+        sourcedirs: $(Build.SourcesDirectory)
+        targetdir: $(Build.ArtifactStagingDirectory)/TestResults/merged
+        reporttypes: HtmlInline_AzurePipelines;Cobertura
+        verbosity: Verbose
+
+    - task: PublishCodeCoverageResults@1
+      displayName: Publish Code Coverage
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: $(Build.ArtifactStagingDirectory)/TestResults/merged/Cobertura.xml
+        reportDirectory: $(Build.ArtifactStagingDirectory)/TestResults/merged
+        failIfCoverageEmpty: true
 
     - script: |
         docker build --network=host --tag $(FullDockerImageName):$(BuildVersion) --tag $(FullDockerImageName):latest -f $(DockerfilePath) .
       failOnStderr: true
       displayName: Build Docker Image
 
-    # TODO: Probably the Docker cache will not be used because the arguments has changed.
     - task: Docker@2
       displayName: Push Docker Image
       condition: and(succeeded(), eq('${{ parameters.PublishArtifacts }}', 'true'))
