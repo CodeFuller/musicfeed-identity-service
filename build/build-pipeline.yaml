@@ -91,18 +91,22 @@ stages:
         addBaseImageData: false
 
     - task: Docker@2
-      displayName: Create Container With Tests Results
+      displayName: Create Container With Test Results
       inputs:
         command: create
         arguments: --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
 
-    # TODO: Split to separate steps.
-    - script: |
-        # docker create --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
-        docker cp $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
-        docker rm --force --volumes $(TestsContainerName)
-      failOnStderr: true
-      displayName: Build & Test
+    - task: Docker@2
+      displayName: Copy Test Results
+      inputs:
+        command: cp
+        arguments: $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
+
+    - task: Docker@2
+      displayName: Remove Container With Test Results
+      inputs:
+        command: rm
+        arguments: --force --volumes $(TestsContainerName)
 
     - task: DockerCompose@0
       displayName: Stop IT Dependencies
