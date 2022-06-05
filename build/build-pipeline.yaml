@@ -24,7 +24,7 @@ variables:
     value: src/MusicFeed.IdentityService/Dockerfile
     readonly: true
   - name: DockerComposeFilePath
-    value: tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yml
+    value: tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yaml
     readonly: true
   - name: DockerImageName
     value: musicfeed-identity-service
