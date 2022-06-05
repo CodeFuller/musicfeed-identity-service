@@ -164,4 +164,11 @@ stages:
         addPipelineData: false
         addBaseImageData: false
 
-    # TODO: Build & Push Helm chart.
+    - task: HelmDeploy@0
+      displayName: Package Helm Chart
+      inputs:
+        command: package
+        chartPath: $(DockerImageName)
+        chartVersion: '$(HelmChartVersion)'
+        save: false
+        arguments: --app-version $(BuildVersion)
