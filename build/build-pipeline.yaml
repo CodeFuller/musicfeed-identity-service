@@ -56,7 +56,7 @@ stages:
           Write-Host "##vso[build.updatebuildnumber]$buildVersion"
           Write-Host "##vso[task.setvariable variable=BuildVersion]$buildVersion"
           # TODO: Do we need FullDockerImageName variable?
-          Write-Host "##vso[task.setvariable variable=FullDockerImageName]$(GlobalConfig.DockerRepo)/$(DockerImageName):$buildVersion"
+          Write-Host "##vso[task.setvariable variable=FullDockerImageName]$(GlobalConfig.DockerHubAccountName)/$(DockerImageName):$buildVersion"
           Write-Host "##vso[task.setvariable variable=HelmChartVersion]$appVersion$helmChartVersionSuffix"
           Write-Host "##vso[task.setvariable variable=TestsImageTag]$(DockerImageName)-test-results:$buildVersion"
           Write-Host "##vso[task.setvariable variable=TestsContainerName]$(DockerImageName)-test-results-$buildVersion"
@@ -98,7 +98,7 @@ stages:
       displayName: Build & Push Docker Image
       inputs:
         containerRegistry: codefuller @ hub.docker.com
-        repository: $(GlobalConfig.DockerRepo)/$(DockerImageName)
+        repository: $(GlobalConfig.DockerHubAccountName)/$(DockerImageName)
         Dockerfile: $(DockerfilePath)
         buildContext: .
         tags: |
