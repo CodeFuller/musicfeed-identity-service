@@ -69,6 +69,7 @@ stages:
         dockerComposeCommand: up
         arguments: --detach
 
+    # TODO: Split to separate steps.
     - script: |
         docker build --target build --network=host --tag $(TestsImageTag) -f $(DockerfilePath) .
         docker create -ti --name $(TestsContainerName) $(TestsImageTag)
@@ -84,6 +85,7 @@ stages:
         dockerComposeFile: $(DockerComposeFilePath)
         dockerComposeCommand: down
 
+    # TODO: Fix test results & code coverage.
     - task: PublishTestResults@2
       displayName: Publish Test Results
       inputs:
@@ -93,17 +95,21 @@ stages:
         mergeTestResults: true
         failTaskOnFailedTests: true
 
+    - script: |
+        docker build --network=host --tag $(FullDockerImageName) -f $(DockerfilePath) .
+      failOnStderr: true
+      displayName: Build Docker Image
+
     # TODO: Probably the Docker cache will not be used because the arguments has changed.
     - task: Docker@2
-      displayName: Build & Push Docker Image
+      displayName: Push Docker Image
+      condition: and(succeeded(), eq('${{ parameters.PublishArtifacts }}', 'true'))
       inputs:
         containerRegistry: codefuller @ hub.docker.com
-        repository: $(GlobalConfig.DockerHubAccountName)/$(DockerImageName)
-        Dockerfile: $(DockerfilePath)
-        buildContext: .
-        tags: |
-          $(BuildVersion)
-          latest
+        repository: $(FullDockerImageName)
+        command: push
+        tags: latest
         addPipelineData: false
+        addBaseImageData: false
 
     # TODO: Build & Push Helm chart.
