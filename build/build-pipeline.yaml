@@ -55,8 +55,7 @@ stages:
 
           Write-Host "##vso[build.updatebuildnumber]$buildVersion"
           Write-Host "##vso[task.setvariable variable=BuildVersion]$buildVersion"
-          # TODO: Do we need FullDockerImageName variable?
-          Write-Host "##vso[task.setvariable variable=FullDockerImageName]$(GlobalConfig.DockerHubAccountName)/$(DockerImageName):$buildVersion"
+          Write-Host "##vso[task.setvariable variable=FullDockerImageName]$(GlobalConfig.DockerHubAccountName)/$(DockerImageName)"
           Write-Host "##vso[task.setvariable variable=HelmChartVersion]$appVersion$helmChartVersionSuffix"
           Write-Host "##vso[task.setvariable variable=TestsImageTag]$(DockerImageName)-test-results:$buildVersion"
           Write-Host "##vso[task.setvariable variable=TestsContainerName]$(DockerImageName)-test-results-$buildVersion"
@@ -72,9 +71,9 @@ stages:
     # TODO: Split to separate steps.
     - script: |
         docker build --target build --network=host --tag $(TestsImageTag) -f $(DockerfilePath) .
-        docker create -ti --name $(TestsContainerName) $(TestsImageTag)
+        docker create --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
         docker cp $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
-        docker rm -fv $(TestsContainerName)
+        docker rm --force --volumes $(TestsContainerName)
       failOnStderr: true
       displayName: Build & Test
 
@@ -96,7 +95,7 @@ stages:
         failTaskOnFailedTests: true
 
     - script: |
-        docker build --network=host --tag $(FullDockerImageName) -f $(DockerfilePath) .
+        docker build --network=host --tag $(FullDockerImageName):$(BuildVersion) --tag $(FullDockerImageName):latest -f $(DockerfilePath) .
       failOnStderr: true
       displayName: Build Docker Image
 
@@ -108,7 +107,9 @@ stages:
         containerRegistry: codefuller @ hub.docker.com
         repository: $(FullDockerImageName)
         command: push
-        tags: latest
+        tags: |
+          $(BuildVersion)
+          latest
         addPipelineData: false
         addBaseImageData: false
 
