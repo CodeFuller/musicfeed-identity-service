@@ -90,9 +90,15 @@ stages:
         addPipelineData: false
         addBaseImageData: false
 
+    - task: Docker@2
+      displayName: Create Container With Tests Results
+      inputs:
+        command: create
+        arguments: --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
+
     # TODO: Split to separate steps.
     - script: |
-        docker create --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
+        # docker create --tty --interactive --name $(TestsContainerName) $(TestsImageTag)
         docker cp $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
         docker rm --force --volumes $(TestsContainerName)
       failOnStderr: true
