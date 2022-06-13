@@ -3,12 +3,12 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MusicFeed.IdentityService.Infrastructure.PostgreSql;
+using MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.IdentityServer
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.Migrations.IdentityServer
 {
     [DbContext(typeof(CustomPersistedGrantDbContext))]
     partial class CustomPersistedGrantDbContextModelSnapshot : ModelSnapshot

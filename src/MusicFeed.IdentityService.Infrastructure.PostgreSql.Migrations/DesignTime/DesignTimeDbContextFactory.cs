@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql;
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.DesignTime;
 
 internal abstract class DesignTimeDbContextFactory<TContext> : IDesignTimeDbContextFactory<TContext>
 	where TContext : DbContext

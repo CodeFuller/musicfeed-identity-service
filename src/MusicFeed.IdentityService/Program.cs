@@ -6,6 +6,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MusicFeed.IdentityService;
 using MusicFeed.IdentityService.Abstractions;
 using MusicFeed.IdentityService.Infrastructure.PostgreSql;
+using MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations;
 using MusicFeed.IdentityService.Settings;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -2,20 +2,18 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MusicFeed.IdentityService.Infrastructure.PostgreSql;
+using MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.Identity
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.Migrations.Identity
 {
     [DbContext(typeof(CustomIdentityDbContext))]
-    [Migration("20220613053808_InitialCreateForIdentity")]
-    partial class InitialCreateForIdentity
+    partial class CustomIdentityDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

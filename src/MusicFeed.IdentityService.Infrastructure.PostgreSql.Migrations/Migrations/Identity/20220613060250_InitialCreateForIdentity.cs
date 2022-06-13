@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.Identity
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.Migrations.Identity
 {
     public partial class InitialCreateForIdentity : Migration
     {

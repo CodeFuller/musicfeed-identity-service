@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MusicFeed.IdentityService.Abstractions;
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql;
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations;
 
 public class CustomIdentityDbContext : IdentityDbContext<ApplicationUser>
 {

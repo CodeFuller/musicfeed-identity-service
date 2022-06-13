@@ -1,7 +1,7 @@
 ﻿using Duende.IdentityServer.EntityFramework.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations
 {
 	public class CustomPersistedGrantDbContext : PersistedGrantDbContext<CustomPersistedGrantDbContext>
 	{

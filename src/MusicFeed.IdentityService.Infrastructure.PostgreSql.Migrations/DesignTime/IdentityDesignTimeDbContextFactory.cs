@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.DesignTime
 {
 	internal class IdentityDesignTimeDbContextFactory : DesignTimeDbContextFactory<CustomIdentityDbContext>
 	{

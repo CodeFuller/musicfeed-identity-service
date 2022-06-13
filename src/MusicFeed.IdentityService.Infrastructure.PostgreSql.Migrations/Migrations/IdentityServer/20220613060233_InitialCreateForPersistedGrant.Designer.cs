@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using MusicFeed.IdentityService.Infrastructure.PostgreSql;
+using MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.IdentityServer
+namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.Migrations.IdentityServer
 {
     [DbContext(typeof(CustomPersistedGrantDbContext))]
-    [Migration("20220613053800_InitialCreateForPersistedGrant")]
+    [Migration("20220613060233_InitialCreateForPersistedGrant")]
     partial class InitialCreateForPersistedGrant
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
