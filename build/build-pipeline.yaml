@@ -130,6 +130,7 @@ stages:
         reports: $(Build.ArtifactStagingDirectory)/TestResults/**/coverage.cobertura.xml
         sourcedirs: $(Build.SourcesDirectory)
         targetdir: $(Build.ArtifactStagingDirectory)/TestResults/merged
+        assemblyfilters: '-MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations'
         reporttypes: HtmlInline_AzurePipelines;Cobertura
         verbosity: Verbose
 
