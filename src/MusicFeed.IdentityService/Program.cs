@@ -29,7 +29,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 	services
 		.AddIdentity<ApplicationUser, IdentityRole>()
-		.AddEntityFrameworkStores<IdentityDbContext>()
+		.AddEntityFrameworkStores<CustomIdentityDbContext>()
 		.AddDefaultTokenProviders();
 
 	var identityServerSettings = new IdentityServerSettings();
@@ -44,6 +44,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 			options.Events.RaiseSuccessEvents = true;
 			options.EmitStaticAudienceClaim = true;
 		})
+		.AddPostgreSqlDalForPersistedGrantStore(GetIdentityDbConnectionString(configuration))
 		.AddInMemoryIdentityResources(Config.IdentityResources)
 		.AddInMemoryApiScopes(Config.ApiScopes)
 		.AddInMemoryClients(identityServerSettings.Clients)
@@ -60,12 +61,17 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		});
 }
 
+string GetIdentityDbConnectionString(IConfiguration configuration)
+{
+	return configuration.GetConnectionString("identityDB");
+}
+
 Func<IServiceProvider, string> ConnectionStringFactory()
 {
 	return serviceProvider =>
 	{
 		var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-		return configuration.GetConnectionString("identityDB");
+		return GetIdentityDbConnectionString(configuration);
 	};
 }
 

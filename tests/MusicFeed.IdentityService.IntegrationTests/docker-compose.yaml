@@ -1,5 +1,6 @@
 # docker-compose -f docker-compose.yaml up
-# dotnet ef database update -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+# dotnet ef database update --context CustomPersistedGrantDbContext -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+# dotnet ef database update --context CustomIdentityDbContext -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
 
 version: '3.5'
 

@@ -3,30 +3,21 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace MusicFeed.IdentityService.Infrastructure.PostgreSql;
 
-internal class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<IdentityDbContext>
+internal abstract class DesignTimeDbContextFactory<TContext> : IDesignTimeDbContextFactory<TContext>
+	where TContext : DbContext
 {
-	public IdentityDbContext CreateDbContext(string[] args)
+	protected abstract TContext CreateDbContext(string connectionString);
+
+	public TContext CreateDbContext(string[] args)
 	{
 		if (args.Length > 1)
 		{
 			Console.Error.WriteLine("Usage:");
-			Console.Error.WriteLine("dotnet ef migrations add InitialCreate -- \"<Connection String>\"");
-			Console.Error.WriteLine("dotnet ef database update -- \"<Connection String>\"");
+			Console.Error.WriteLine("dotnet ef migrations add <Migration Name> -- <Connection String>");
+			Console.Error.WriteLine("dotnet ef database update -- <Connection String>");
 			Environment.Exit(1);
 		}
 
-		var optionsBuilder = new DbContextOptionsBuilder<IdentityDbContext>();
-
-		if (args.Length == 1)
-		{
-			var connectionString = args.Single();
-			optionsBuilder.UseNpgsql(connectionString);
-		}
-		else
-		{
-			optionsBuilder.UseNpgsql();
-		}
-
-		return new IdentityDbContext(optionsBuilder.Options);
+		return CreateDbContext(args.SingleOrDefault());
 	}
 }

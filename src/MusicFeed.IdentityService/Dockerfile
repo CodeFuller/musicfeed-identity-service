@@ -25,7 +25,8 @@ FROM build AS test
 # Applying EF Core migrations necessary for IT.
 RUN dotnet tool install -g dotnet-ef
 ENV PATH $PATH:/root/.dotnet/tools
-RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql" -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql" --context CustomPersistedGrantDbContext -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql" --context CustomIdentityDbContext -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
 
 # We don't let dotnet test command to fail build if some tests are failed.
 # This will prevent publish of tests results (trx file).
@@ -36,7 +37,7 @@ RUN dotnet test "MusicFeed.IdentityService.Build.sln" --no-build --configuration
 RUN mkdir TestResults
 RUN cp -r --target-directory=TestResults --parents tests/*/TestResults
 
-FROM build AS publish
+FROM test AS publish
 RUN dotnet publish "src/MusicFeed.IdentityService/MusicFeed.IdentityService.csproj" --no-build --configuration Release -o /app/publish
 
 FROM base AS final
