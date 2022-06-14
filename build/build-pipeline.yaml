@@ -29,6 +29,9 @@ variables:
   - name: DockerImageName
     value: musicfeed-identity-service
     readonly: true
+  - name: CodeCoverageAssemblyFilters
+    value: '-MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations'
+    readonly: true
 
 stages:
 - stage: BuildDockerImageStage
@@ -130,7 +133,7 @@ stages:
         reports: $(Build.ArtifactStagingDirectory)/TestResults/**/coverage.cobertura.xml
         sourcedirs: $(Build.SourcesDirectory)
         targetdir: $(Build.ArtifactStagingDirectory)/TestResults/merged
-        assemblyfilters: '-MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations'
+        assemblyfilters: $(CodeCoverageAssemblyFilters)
         reporttypes: HtmlInline_AzurePipelines;Cobertura
         verbosity: Verbose
 
