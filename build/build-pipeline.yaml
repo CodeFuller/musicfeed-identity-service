@@ -18,7 +18,7 @@ parameters:
 variables:
   - group: MusicFeedVariables
   - name: ReleaseBranchName
-    value: main
+    value: master
     readonly: true
   - name: DockerfilePath
     value: src/MusicFeed.IdentityService/Dockerfile
