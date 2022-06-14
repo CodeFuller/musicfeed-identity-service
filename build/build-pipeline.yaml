@@ -174,6 +174,7 @@ stages:
         command: package
         chartPath: $(DockerImageName)
         chartVersion: '$(HelmChartVersion)'
+        destination: $(Build.ArtifactStagingDirectory)
         save: false
         arguments: --app-version $(BuildVersion)
 
@@ -181,5 +182,5 @@ stages:
       displayName: Publish Helm Chart
       condition: and(succeeded(), eq('${{ parameters.PublishArtifacts }}', 'true'))
       inputs:
-        targetPath: $(DockerImageName)-$(HelmChartVersion).tgz
+        targetPath: $(Build.ArtifactStagingDirectory)/$(DockerImageName)-$(HelmChartVersion).tgz
         artifact: $(DockerImageName)-$(HelmChartVersion).tgz
