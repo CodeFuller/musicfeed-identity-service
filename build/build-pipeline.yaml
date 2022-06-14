@@ -176,3 +176,10 @@ stages:
         chartVersion: '$(HelmChartVersion)'
         save: false
         arguments: --app-version $(BuildVersion)
+
+    - task: PublishPipelineArtifact@1
+      displayName: Publish Helm Chart
+      condition: and(succeeded(), eq('${{ parameters.PublishArtifacts }}', 'true'))
+      inputs:
+        targetPath: $(DockerImageName)-$(HelmChartVersion).tgz
+        artifact: $(DockerImageName)-$(HelmChartVersion).tgz
