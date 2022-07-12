@@ -62,8 +62,9 @@ stages:
           Write-Host "##vso[task.setvariable variable=BuildVersion]$buildVersion"
           Write-Host "##vso[task.setvariable variable=FullDockerImageName]$(GlobalConfig.DockerHubAccountName)/$(DockerImageName)"
           Write-Host "##vso[task.setvariable variable=HelmChartVersion]$appVersion$helmChartVersionSuffix"
-          Write-Host "##vso[task.setvariable variable=TestsImageTag]$(DockerImageName)-test-results:$buildVersion"
-          Write-Host "##vso[task.setvariable variable=TestsContainerName]$(DockerImageName)-test-results-$buildVersion"
+          Write-Host "##vso[task.setvariable variable=BuildImageTag]$(DockerImageName)-build:$buildVersion"
+          Write-Host "##vso[task.setvariable variable=TestsImageTag]$(DockerImageName)-tests:$buildVersion"
+          Write-Host "##vso[task.setvariable variable=TestsContainerName]$(DockerImageName)-tests-$buildVersion"
 
     - task: DockerCompose@0
       displayName: Start IT Dependencies
@@ -79,7 +80,7 @@ stages:
         command: build
         Dockerfile: $(DockerfilePath)
         buildContext: '.'
-        arguments: --target build --network=host --tag $(TestsImageTag)
+        arguments: --target build --network=host --tag $(BuildImageTag)
         addPipelineData: false
         addBaseImageData: false
 
@@ -167,6 +168,12 @@ stages:
           latest
         addPipelineData: false
         addBaseImageData: false
+
+    - task: Docker@2
+      displayName: Remove Docker Images
+      inputs:
+        command: rm
+        arguments: $(BuildImageTag) $(TestsImageTag) $(FullDockerImageName):$(BuildVersion) $(FullDockerImageName):latest
 
     - task: HelmDeploy@0
       displayName: Package Helm Chart
