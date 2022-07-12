@@ -175,6 +175,12 @@ stages:
         command: image
         arguments: rm $(BuildImageTag) $(TestsImageTag) $(FullDockerImageName):$(BuildVersion) $(FullDockerImageName):latest
 
+      displayName: Remove Dangling Docker Images
+      inputs:
+        command: image
+        arguments: prune -f
+
+    - task: Docker@2
     - task: HelmDeploy@0
       displayName: Package Helm Chart
       inputs:
