@@ -172,8 +172,8 @@ stages:
     - task: Docker@2
       displayName: Remove Docker Images
       inputs:
-        command: rm
-        arguments: $(BuildImageTag) $(TestsImageTag) $(FullDockerImageName):$(BuildVersion) $(FullDockerImageName):latest
+        command: image
+        arguments: rm $(BuildImageTag) $(TestsImageTag) $(FullDockerImageName):$(BuildVersion) $(FullDockerImageName):latest
 
     - task: HelmDeploy@0
       displayName: Package Helm Chart
