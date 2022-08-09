@@ -31,8 +31,7 @@ RUN dotnet ef database update --no-build --configuration Release --project "src/
 
 # We don't let dotnet test command to fail build if some tests are failed.
 # This will prevent publish of tests results (trx file).
-# The build will be failed by the task that publishes test results.
-# Instead the build is marked as unstable due to tests failures and artifacts publishing stage is skipped due to skipStagesAfterUnstable option.
+# If some tests are failed, the task PublishTestResults will fail due to failTaskOnFailedTests parameter.
 RUN dotnet test "MusicFeed.IdentityService.Build.sln" --no-build --configuration Release --logger "trx" --collect:"XPlat Code Coverage"; exit 0
 
 RUN mkdir TestResults

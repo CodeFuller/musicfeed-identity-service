@@ -80,7 +80,7 @@ stages:
         command: build
         Dockerfile: $(DockerfilePath)
         buildContext: '.'
-        arguments: --target build --network=host --tag $(BuildImageTag)
+        arguments: --target build --network=musicfeed-test-network --tag $(BuildImageTag)
         addPipelineData: false
         addBaseImageData: false
 
@@ -90,7 +90,7 @@ stages:
         command: build
         Dockerfile: $(DockerfilePath)
         buildContext: '.'
-        arguments: --target test --network=host --tag $(TestsImageTag)
+        arguments: --target test --network=musicfeed-test-network --tag $(TestsImageTag)
         addPipelineData: false
         addBaseImageData: false
 
@@ -152,7 +152,7 @@ stages:
         command: build
         Dockerfile: $(DockerfilePath)
         buildContext: '.'
-        arguments: --network=host --tag $(FullDockerImageName):$(BuildVersion) --tag $(FullDockerImageName):latest
+        arguments: --tag $(FullDockerImageName):$(BuildVersion) --tag $(FullDockerImageName):latest
         addPipelineData: false
         addBaseImageData: false
 
