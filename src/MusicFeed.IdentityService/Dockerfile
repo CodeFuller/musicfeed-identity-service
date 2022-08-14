@@ -1,3 +1,5 @@
+# docker build -t musicfeed/identity-service:latest --network=musicfeed-test-network -f "../../src/MusicFeed.IdentityService/Dockerfile" ../..
+
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 EXPOSE 80
 
