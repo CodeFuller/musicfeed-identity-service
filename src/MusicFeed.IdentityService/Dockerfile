@@ -1,4 +1,6 @@
-# docker build -t musicfeed/identity-service:latest --network=musicfeed-test-network -f "../../src/MusicFeed.IdentityService/Dockerfile" ../..
+# docker-compose -f "../../tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yaml" up --no-build --detach
+# docker build --network=host -t musicfeed/identity-service:latest -f "../../src/MusicFeed.IdentityService/Dockerfile" ../..
+# docker-compose -f "../../tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yaml" down
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 EXPOSE 80
@@ -28,8 +30,8 @@ FROM build AS test
 # Applying EF Core migrations necessary for IT.
 RUN dotnet tool install -g dotnet-ef
 ENV PATH $PATH:/root/.dotnet/tools
-RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomPersistedGrantDbContext -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
-RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomIdentityDbContext -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomPersistedGrantDbContext -- "Server=localhost;Port=15432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomIdentityDbContext -- "Server=localhost;Port=15432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
 
 # We don't let dotnet test command to fail build if some tests are failed.
 # This will prevent publish of tests results (trx file).

@@ -7,14 +7,7 @@ version: '3.5'
 services:
   postgres:
     image: postgres:latest
-    networks:
-      - musicfeed-test-network
     ports:
-      - "5432:5432"
+      - "15432:5432"
     environment:
       POSTGRES_PASSWORD: Qwerty123
-
-networks:
-  musicfeed-test-network:
-    name: musicfeed-test-network
-    driver: bridge

@@ -11,8 +11,8 @@ namespace MusicFeed.IdentityService.IntegrationTests
 	[TestClass]
 	public class HealthTests
 	{
-		private const string HealthyPostgresConnectionString = "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;";
-		private const string UnhealthyPostgresConnectionString = "Server=localhost;Port=5433;Database=IdentityDB;User Id=postgres;Password=Qwerty123;";
+		private const string HealthyPostgresConnectionString = "Server=localhost;Port=15432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;";
+		private const string UnhealthyPostgresConnectionString = "Server=localhost;Port=15433;Database=IdentityDB;User Id=postgres;Password=Qwerty123;";
 
 		private static Action<IConfigurationBuilder> HealthyPostgresConfiguration => GetDbConfiguration(HealthyPostgresConnectionString);
 
