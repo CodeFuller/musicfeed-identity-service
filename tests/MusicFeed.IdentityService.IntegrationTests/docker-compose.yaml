@@ -1,6 +1,7 @@
-# docker-compose -f docker-compose.yaml up --detach
+# docker-compose -f docker-compose.yaml up --no-build --detach
 # dotnet ef database update --context CustomPersistedGrantDbContext --project ../../src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations --startup-project ../../src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
 # dotnet ef database update --context CustomIdentityDbContext --project ../../src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations --startup-project ../../src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations -- "Server=localhost;Port=5432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
+# docker compose down
 
 version: '3.5'
 
