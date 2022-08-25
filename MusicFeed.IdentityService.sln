@@ -23,7 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{CDD61A10
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicFeed.IdentityService.IntegrationTests", "tests\MusicFeed.IdentityService.IntegrationTests\MusicFeed.IdentityService.IntegrationTests.csproj", "{818DD5B4-BF8C-4A0C-A232-50A03B54CCB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations", "src\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.csproj", "{BAF294E0-CD17-47A9-836B-E5E4B2D12656}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations", "src\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.csproj", "{BAF294E0-CD17-47A9-836B-E5E4B2D12656}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoSpaProject", "utils\DemoSpaProject\DemoSpaProject.csproj", "{0CA6BF26-A592-4F08-8687-F7A87C20C265}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{BAF294E0-CD17-47A9-836B-E5E4B2D12656}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAF294E0-CD17-47A9-836B-E5E4B2D12656}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAF294E0-CD17-47A9-836B-E5E4B2D12656}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CA6BF26-A592-4F08-8687-F7A87C20C265}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CA6BF26-A592-4F08-8687-F7A87C20C265}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CA6BF26-A592-4F08-8687-F7A87C20C265}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CA6BF26-A592-4F08-8687-F7A87C20C265}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{5C9BCD58-06C5-469D-B6F9-31E9C758C816} = {0A7A03CE-556A-4EC4-9CD3-4F81540B7914}
 		{818DD5B4-BF8C-4A0C-A232-50A03B54CCB1} = {CDD61A10-3FD5-4292-A48B-B756EB6CEF1C}
 		{BAF294E0-CD17-47A9-836B-E5E4B2D12656} = {0A7A03CE-556A-4EC4-9CD3-4F81540B7914}
+		{0CA6BF26-A592-4F08-8687-F7A87C20C265} = {C6BA59B9-5693-4835-9920-58915E9A8589}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D560B1F8-B698-4B44-9542-E841C9AA97A9}
