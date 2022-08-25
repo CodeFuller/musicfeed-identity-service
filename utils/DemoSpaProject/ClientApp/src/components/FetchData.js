@@ -5,31 +5,27 @@ export class FetchData extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { forecasts: [], loading: true };
+    this.state = { claims: [], loading: true };
   }
 
   componentDidMount() {
-    this.populateWeatherData();
+    this.populateClaimsData();
   }
 
-  static renderForecastsTable(forecasts) {
+  static renderClaimsTable(claims) {
     return (
       <table className='table table-striped' aria-labelledby="tabelLabel">
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
+            <th>Claim Type</th>
+            <th>Claim Value</th>
           </tr>
         </thead>
         <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.date}>
-              <td>{forecast.date}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
+          {claims.map(claim =>
+            <tr key={claim.type}>
+              <td>{claim.type}</td>
+              <td>{claim.value}</td>
             </tr>
           )}
         </tbody>
@@ -40,20 +36,20 @@ export class FetchData extends Component {
   render() {
     let contents = this.state.loading
       ? <p><em>Loading...</em></p>
-      : FetchData.renderForecastsTable(this.state.forecasts);
+      : FetchData.renderClaimsTable(this.state.claims);
 
     return (
       <div>
-        <h1 id="tabelLabel" >Weather forecast</h1>
+        <h1 id="tabelLabel">Claims</h1>
         <p>This component demonstrates fetching data from the server.</p>
         {contents}
       </div>
     );
   }
 
-  async populateWeatherData() {
-    const response = await fetch('weatherforecast');
+  async populateClaimsData() {
+    const response = await fetch('https://localhost:6001/identity');
     const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+    this.setState({ claims: data.claims, loading: false });
   }
 }

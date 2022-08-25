@@ -1,5 +1,7 @@
 using Microsoft.IdentityModel.Tokens;
 
+const string demoSpaProjectOriginPolicyName = "DemoSpaProject";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -19,6 +21,16 @@ builder.Services
 		};
 	});
 
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy(
+		demoSpaProjectOriginPolicyName,
+		policy =>
+		{
+			policy.WithOrigins("https://localhost:7001", "https://localhost:44456");
+		});
+});
+
 builder.Services.AddAuthorization(options =>
 {
 	options.AddPolicy("MusicFeedApiScope", policy =>
@@ -31,6 +43,8 @@ builder.Services.AddAuthorization(options =>
 var app = builder.Build();
 
 app.UseHttpsRedirection();
+
+app.UseCors(demoSpaProjectOriginPolicyName);
 
 app.UseAuthentication();
 app.UseAuthorization();

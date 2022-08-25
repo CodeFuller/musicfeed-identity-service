@@ -11,7 +11,7 @@
     "DemoSpaProject": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7172;http://localhost:5172",
+      "applicationUrl": "https://localhost:7001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.SpaProxy"
