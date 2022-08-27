@@ -14,14 +14,18 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:5001",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CLIENTS__0__ALLOWEDCORSORIGINS__0": "https://localhost:44456",
+        "CLIENTS__0__REDIRECTURIS__0": "https://localhost:44456/signin-oidc"
       }
     },
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "CLIENTS__0__ALLOWEDCORSORIGINS__0": "https://localhost:44456",
+        "CLIENTS__0__REDIRECTURIS__0": "https://localhost:44456/signin-oidc"
       }
     }
   }
