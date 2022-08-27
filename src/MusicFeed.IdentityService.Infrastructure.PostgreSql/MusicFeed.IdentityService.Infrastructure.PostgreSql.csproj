@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-    <PropertyGroup>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-        <CodeAnalysisRuleSet>..\..\MusicFeed.IdentityService.src.ruleset</CodeAnalysisRuleSet>
-        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-        <WarningsAsErrors />
-    </PropertyGroup>
+	<PropertyGroup>
+		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+		<CodeAnalysisRuleSet>..\..\MusicFeed.IdentityService.src.ruleset</CodeAnalysisRuleSet>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+	</PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
-    </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435" PrivateAssets="all" />
+	</ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\MusicFeed.IdentityService.Abstractions\MusicFeed.IdentityService.Abstractions.csproj" />
-        <ProjectReference Include="..\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.csproj" />
-    </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\MusicFeed.IdentityService.Abstractions\MusicFeed.IdentityService.Abstractions.csproj" />
+		<ProjectReference Include="..\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations\MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.csproj" />
+	</ItemGroup>
 
 </Project>
