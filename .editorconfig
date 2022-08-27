@@ -3,5 +3,9 @@ indent_style = tab
 indent_size = tab
 tab_size = 4
 
+[*.{js,json}]
+indent_style = space
+indent_size = 2
+
 [*.cshtml.cs]
 dotnet_diagnostic.SA1649.severity = none
