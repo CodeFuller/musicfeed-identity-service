@@ -1,14 +1,14 @@
 import React, { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { signinRedirect } from '../services/userService'
-import * as apiService from '../services/apiService'
+import ApiService from '../services/apiService'
 
 function Home() {
   const user = useSelector(state => state.auth.user)
   const [identityData, setIdentityData] = useState(null)
 
   async function getIdentityData() {
-    const identity = await apiService.getIdentityData()
+    const identity = await ApiService.getIdentityData()
     setIdentityData(identity)
   }
 

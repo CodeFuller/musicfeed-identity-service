@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { storeUser } from '../actions/authActions'
-import { setAuthHeader } from './axiosHeaders';
+import ApiService from '../services/apiService'
 
 export default function AuthProvider({ userManager: manager, store, children }) {
 
@@ -15,7 +15,7 @@ export default function AuthProvider({ userManager: manager, store, children }) 
     }
 
     const onUserUnloaded = () => {
-      setAuthHeader(null)
+      ApiService.setJwt(null)
       console.log(`user unloaded`)
     }
 

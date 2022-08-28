@@ -6,7 +6,7 @@ const config = {
   client_id: "musicfeed-api",
   redirect_uri: "https://localhost:44456/signin-oidc",
   response_type: "code",
-  scope: "openid profile musicfeed-api",
+  scope: "openid profile offline_access musicfeed-api",
   post_logout_redirect_uri: "https://localhost:44456/signout-oidc",
 };
 
@@ -44,6 +44,12 @@ export function signoutRedirectCallback() {
   userManager.clearStaleState()
   userManager.removeUser()
   return userManager.signoutRedirectCallback()
+}
+
+export async function refreshToken() {
+  console.debug("Calling signinSilent() ...")
+  await userManager.signinSilent()
+  console.debug("signinSilent() completed")
 }
 
 export default userManager

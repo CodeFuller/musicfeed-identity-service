@@ -6,10 +6,10 @@ import {
   LOADING_USER
 } from './types'
 
-import { setAuthHeader } from '../utils/axiosHeaders'
+import ApiService from '../services/apiService'
 
 export function storeUser(user) {
-  setAuthHeader(user.access_token)
+  ApiService.setJwt(user.access_token)
   return {
     type: STORE_USER,
     payload: user

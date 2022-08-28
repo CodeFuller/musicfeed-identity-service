@@ -14,8 +14,10 @@ builder.Services
 
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
-#pragma warning disable CA5404 // Do not disable token validation checks
+			ValidateLifetime = true,
+
 			// TODO: Enable audience validation.
+#pragma warning disable CA5404 // Do not disable token validation checks
 			ValidateAudience = false,
 #pragma warning restore CA5404 // Do not disable token validation checks
 		};
