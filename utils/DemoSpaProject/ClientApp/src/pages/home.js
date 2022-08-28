@@ -12,6 +12,15 @@ function Home() {
     setIdentityData(identity)
   }
 
+  function getDateTimeValue(claimType, claimValue) {
+    return claimType === 'nbf' || claimType === 'iat' || claimType === 'exp' || claimType === 'auth_time' ?
+      getDateTime(claimValue) : '';
+  }
+
+  function getDateTime(unixTime) {
+    return new Date(1000 * unixTime).toLocaleString()
+  }
+
   if (user) {
     const loadCaption = identityData ? 'Reload data' : 'Load data'
     return (
@@ -29,6 +38,7 @@ function Home() {
                   <tr>
                     <th>Type</th>
                     <th>Value</th>
+                    <th>Date &amp; Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -37,6 +47,7 @@ function Home() {
                       <tr>
                         <td>{claim.type}</td>
                         <td>{claim.value}</td>
+                        <td>{getDateTimeValue(claim.type, claim.value)}</td>
                       </tr>
                     ))
                   }
