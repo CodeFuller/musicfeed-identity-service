@@ -23,12 +23,25 @@ function Home() {
         {
           identityData &&
             <div className="mt-3">
-              <h4>Identity data:</h4>
-              <pre>
-                <code>
-                  {identityData ? JSON.stringify(identityData, null, 2) : 'No data yet :('}
-                </code>
-              </pre>
+              <h4>Claims:</h4>
+              <table className="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {identityData.claims.map(claim => 
+                    (
+                      <tr>
+                        <td>{claim.type}</td>
+                        <td>{claim.value}</td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
             </div>
         }
 
