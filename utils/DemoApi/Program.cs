@@ -27,7 +27,9 @@ builder.Services.AddCors(options =>
 		demoSpaProjectOriginPolicyName,
 		policy =>
 		{
-			policy.WithOrigins("https://localhost:7001", "https://localhost:44456");
+			policy
+				.WithOrigins("https://localhost:7001", "https://localhost:44456")
+				.AllowAnyHeader();
 		});
 });
 
