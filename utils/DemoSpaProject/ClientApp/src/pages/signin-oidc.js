@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { signinRedirectCallback } from '../services/userService'
 import { useHistory } from 'react-router-dom'
 
-function SigninOidc() {
+export function SigninOidc() {
   const history = useHistory()
   useEffect(() => {
     async function signinAsync() {
@@ -18,5 +18,3 @@ function SigninOidc() {
     </div>
   )
 }
-
-export default SigninOidc
