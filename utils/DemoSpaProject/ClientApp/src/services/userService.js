@@ -34,22 +34,18 @@ export function signinRedirectCallback() {
   return userManager.signinRedirectCallback()
 }
 
-export function signoutRedirect() {
-  userManager.clearStaleState()
-  userManager.removeUser()
-  return userManager.signoutRedirect()
+export async function signoutRedirect() {
+  await userManager.signoutRedirect()
 }
 
-export function signoutRedirectCallback() {
-  userManager.clearStaleState()
-  userManager.removeUser()
-  return userManager.signoutRedirectCallback()
+export async function signoutRedirectCallback() {
+  await userManager.clearStaleState()
+  await userManager.removeUser()
+  await  userManager.signoutRedirectCallback()
 }
 
 export async function refreshToken() {
-  console.debug("Calling signinSilent() ...")
   await userManager.signinSilent()
-  console.debug("signinSilent() completed")
 }
 
 export default userManager

@@ -7,6 +7,7 @@ import store from './store';
 import { Layout } from './components/Layout'
 import { PrivateRoute } from './utils/PrivateRoute'
 import { LoginPage } from './pages/LoginPage';
+import { LogoutPage } from './pages/LogoutPage';
 import { HomePage } from './pages/HomePage';
 import { IdentityPage } from './pages/IdentityPage';
 import { SigninOidc } from './pages/signin-oidc';
@@ -24,6 +25,7 @@ export default class App extends Component {
               <Layout>
               <Switch>
                 <Route path="/login" component={LoginPage}  />
+                <PrivateRoute path="/logout" component={LogoutPage}  />
                 <Route path="/signin-oidc" component={SigninOidc} />
                 <Route path="/signout-oidc" component={SignoutOidc} />
                 <PrivateRoute path="/identity" component={IdentityPage} />

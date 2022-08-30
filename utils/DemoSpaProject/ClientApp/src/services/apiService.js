@@ -7,9 +7,13 @@ const ApiService = {
   jwtExpiration: null,
 
   setJwt(jwt) {
-    const tokenData = jwt_decode(jwt)
-    this.jwtExpiration = new Date(1000 * tokenData.exp)
-    console.debug(`Token will expire at: ${this.jwtExpiration.toLocaleString()}`)
+    if (jwt) {
+      const tokenData = jwt_decode(jwt)
+      this.jwtExpiration = new Date(1000 * tokenData.exp)
+      console.debug(`Token will expire at: ${this.jwtExpiration.toLocaleString()}`)
+    } else {
+      console.debug('Cleared JWT')
+    }
 
     this.axios.defaults.headers.common['Authorization'] = `Bearer ${jwt}`
   },
