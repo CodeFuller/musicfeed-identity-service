@@ -11,15 +11,18 @@ builder.Services
 	.AddJwtBearer("Bearer", options =>
 	{
 		options.Authority = "https://localhost:5001";
+		options.Audience = "https://localhost:5001/resources";
 
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
 			ValidateLifetime = true,
+			ValidateAudience = true,
+			ValidateIssuer = true,
+			ValidateIssuerSigningKey = true,
+			ValidateActor = true,
+			ValidateTokenReplay = true,
 
-			// TODO: Enable audience validation.
-#pragma warning disable CA5404 // Do not disable token validation checks
-			ValidateAudience = false,
-#pragma warning restore CA5404 // Do not disable token validation checks
+			ValidTypes = new[] { "at+jwt" },
 		};
 	});
 
