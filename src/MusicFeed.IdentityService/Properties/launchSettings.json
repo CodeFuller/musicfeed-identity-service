@@ -16,7 +16,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CLIENTS__0__ALLOWEDCORSORIGINS__0": "https://localhost:44456",
-        "CLIENTS__0__REDIRECTURIS__0": "https://localhost:44456/signin-oidc"
+        "CLIENTS__0__REDIRECTURIS__0": "https://localhost:44456/signin-oidc",
+        "CLIENTS__0__POSTLOGOUTREDIRECTURIS__0": "https://localhost:44456/signout-oidc"
       }
     },
     "IIS Express": {
@@ -25,7 +26,8 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CLIENTS__0__ALLOWEDCORSORIGINS__0": "https://localhost:44456",
-        "CLIENTS__0__REDIRECTURIS__0": "https://localhost:44456/signin-oidc"
+        "CLIENTS__0__REDIRECTURIS__0": "https://localhost:44456/signin-oidc",
+        "CLIENTS__0__POSTLOGOUTREDIRECTURIS__0": "https://localhost:44456/signout-oidc"
       }
     }
   }
