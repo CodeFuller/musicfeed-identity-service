@@ -2,7 +2,7 @@ import { UserManager } from 'oidc-client';
 import { storeUserError, storeUser } from '../actions/authActions'
 
 const config = {
-  authority: "https://localhost:5001",
+  authority: "https://localhost:5001/identity/",
   client_id: "musicfeed-web",
   redirect_uri: "https://localhost:44456/signin-oidc",
   response_type: "code",

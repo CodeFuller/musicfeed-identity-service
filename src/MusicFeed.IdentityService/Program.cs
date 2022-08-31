@@ -83,6 +83,8 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment env
 		appBuilder.UseExceptionHandler("/Error");
 	}
 
+	app.UsePathBase("/identity");
+
 	appBuilder.UseStaticFiles();
 
 	appBuilder.UseRouting();

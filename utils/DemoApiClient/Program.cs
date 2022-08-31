@@ -4,7 +4,7 @@ using IdentityModel.Client;
 try
 {
 	using var client = new HttpClient();
-	var discoveryDocumentResponse = await client.GetDiscoveryDocumentAsync("https://localhost:5001");
+	var discoveryDocumentResponse = await client.GetDiscoveryDocumentAsync("https://localhost:5001/identity/");
 	if (discoveryDocumentResponse.IsError)
 	{
 		throw new InvalidOperationException($"Failed to get discovery document: {discoveryDocumentResponse.Error}");
