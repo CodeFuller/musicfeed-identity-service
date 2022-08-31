@@ -48,7 +48,13 @@ spec:
               value: {{ .value }}
           {{- end }}
             - name: CONNECTIONSTRINGS__IDENTITYDB
-              value: {{ .Values.IdentityDBConnectionString }}
+              value: {{ .Values.identityDBConnectionString }}
+            - name: CLIENTS__0__ALLOWEDCORSORIGINS__0
+              value: {{ .Values.webClientAddress }}
+            - name: CLIENTS__0__REDIRECTURIS__0
+              value: "{{ .Values.webClientAddress }}/signin-oidc"
+            - name: CLIENTS__0__POSTLOGOUTREDIRECTURIS__0
+              value: "{{ .Values.webClientAddress }}/signout-oidc"
           livenessProbe:
             httpGet:
               path: /health/live
