@@ -49,6 +49,10 @@ spec:
           {{- end }}
             - name: CONNECTIONSTRINGS__IDENTITYDB
               value: {{ .Values.identityDBConnectionString }}
+            - name: AUTHENTICATION__GOOGLE__CLIENTID
+              value: {{ .Values.googleClientId }}
+            - name: AUTHENTICATION__GOOGLE__CLIENTSECRET
+              value: {{ .Values.googleClientSecret }}
             - name: CLIENTS__0__ALLOWEDCORSORIGINS__0
               value: {{ .Values.webClientAddress }}
             - name: CLIENTS__0__REDIRECTURIS__0
