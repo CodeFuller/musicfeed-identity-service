@@ -3,7 +3,7 @@ import { storeUserError, storeUser } from '../actions/authActions'
 
 const config = {
   authority: "https://localhost:5001",
-  client_id: "musicfeed-api",
+  client_id: "musicfeed-web",
   redirect_uri: "https://localhost:44456/signin-oidc",
   response_type: "code",
   scope: "openid profile offline_access musicfeed-api",
