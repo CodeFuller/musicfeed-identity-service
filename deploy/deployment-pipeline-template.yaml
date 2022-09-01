@@ -34,7 +34,7 @@ jobs:
             overrideValues: |
               certificateArn=$(GlobalConfig.AWS.CertificateArn)
               domainName=${{ parameters.SubdomainName }}.$(GlobalConfig.DomainName)
-              identityDBConnectionString=$(IdentityService.IdentityDBConnectionString)
+              identityDBConnectionString="$(IdentityService.IdentityDBConnectionString)"
               googleClientId=$(IdentityService.GoogleClientId)
               googleClientSecret=$(IdentityService.GoogleClientSecret)
               webClientAddress=$(IdentityService.WebClientAddress)
