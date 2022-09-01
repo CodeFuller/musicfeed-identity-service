@@ -83,6 +83,14 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment env
 		appBuilder.UseExceptionHandler("/Error");
 	}
 
+	app.Use((context, next) =>
+	{
+		// Forcing https endpoints in discovery document.
+		// We need this, because service is running in Docker at http port, however is publicly available via ALB at https.
+		context.Request.Scheme = "https";
+		return next();
+	});
+
 	app.UsePathBase("/identity");
 
 	appBuilder.UseStaticFiles();
