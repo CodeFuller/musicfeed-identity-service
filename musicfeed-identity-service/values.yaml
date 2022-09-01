@@ -1,4 +1,4 @@
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: codefuller/musicfeed-identity-service
@@ -62,7 +62,7 @@ resources: {}
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 3
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
