@@ -27,7 +27,9 @@ export function IdentityPage() {
       {
         identityData &&
         <div className="mt-3">
-          <h4>Claims:</h4>
+          <h4>Token:</h4>
+          <code>{identityData.token}</code>
+          <h4 className='mt-3'>Claims:</h4>
           <table className="table table-striped table-bordered">
             <thead>
               <tr>
