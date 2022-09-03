@@ -27,6 +27,10 @@ jobs:
           artifact: db-migration-scripts
 
         - powershell: |
+            Install-Module -Name SimplySql -RequiredVersion 1.9.0 -Scope CurrentUser -Force
+          displayName: Install SimplySql Module
+
+        - powershell: |
             $scriptsDirectoryPath = '$(Pipeline.Workspace)/BuildPipeline/db-migration-scripts'
 
             Import-Module -Name SimplySql -RequiredVersion 1.9.0
