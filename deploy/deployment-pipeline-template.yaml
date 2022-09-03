@@ -31,7 +31,7 @@ jobs:
 
             Import-Module -Name SimplySql -RequiredVersion 1.9.0
             
-            Open-PostGreConnection -ConnectionString $(IdentityService.IdentityDBConnectionString)
+            Open-PostGreConnection -ConnectionString '$(IdentityService.IdentityDBConnectionString)'
 
             Write-Host "Applying migrations for IdentityServer database ..."
             $migrationScript = Get-Content "$scriptsDirectoryPath/Migrate-IdentityServer-Database.sql"
