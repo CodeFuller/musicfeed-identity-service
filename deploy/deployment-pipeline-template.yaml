@@ -22,6 +22,28 @@ jobs:
           displayName: Download Helm Chart
           artifact: $(HelmChartName)
 
+        - download: BuildPipeline
+          displayName: Download DB Migration Scripts
+          artifact: db-migration-scripts
+
+        - powershell: |
+            $scriptsDirectoryPath = '$(Pipeline.Workspace)/BuildPipeline/db-migration-scripts'
+
+            Import-Module -Name SimplySql -RequiredVersion 1.9.0
+            
+            Open-PostGreConnection -ConnectionString $(IdentityService.IdentityDBConnectionString)
+
+            Write-Host "Applying migrations for IdentityServer database ..."
+            $migrationScript = Get-Content "$scriptsDirectoryPath/Migrate-IdentityServer-Database.sql"
+            Invoke-SqlUpdate -query $migrationScript -verbose 
+
+            Write-Host "Applying migrations for Identity database ..."
+            $migrationScript = Get-Content "$scriptsDirectoryPath/Migrate-Identity-Database.sql"
+            Invoke-SqlUpdate -query $migrationScript -verbose 
+
+            Close-SqlConnection
+          displayName: Apply DB Migrations
+
         - task: HelmDeploy@0
           displayName: Install Helm Chart
           inputs:
