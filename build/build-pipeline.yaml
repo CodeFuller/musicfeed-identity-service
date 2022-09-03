@@ -202,7 +202,7 @@ stages:
       condition: and(succeeded(), eq('${{ parameters.PublishArtifacts }}', 'true'))
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/$(DockerImageName)-$(HelmChartVersion).tgz
-        artifact: $(DockerImageName)-$(HelmChartVersion).tgz
+        artifact: helm-chart
 
     - task: PublishPipelineArtifact@1
       displayName: Publish DB Migration Scripts
