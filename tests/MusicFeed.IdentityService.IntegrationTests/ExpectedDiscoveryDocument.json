@@ -1,4 +1,4 @@
-﻿{
+{
   "issuer": "https://localhost",
   "jwks_uri": "https://localhost/.well-known/openid-configuration/jwks",
   "authorization_endpoint": "https://localhost/connect/authorize",

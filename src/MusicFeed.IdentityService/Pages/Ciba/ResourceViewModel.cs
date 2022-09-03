@@ -1,4 +1,4 @@
-﻿namespace MusicFeed.IdentityService.Pages.Ciba
+namespace MusicFeed.IdentityService.Pages.Ciba
 {
 	public class ResourceViewModel
 	{

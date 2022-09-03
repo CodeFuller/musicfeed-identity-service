@@ -1,4 +1,4 @@
-﻿namespace MusicFeed.IdentityService.Pages.Consent;
+namespace MusicFeed.IdentityService.Pages.Consent;
 
 public class ResourceViewModel
 {

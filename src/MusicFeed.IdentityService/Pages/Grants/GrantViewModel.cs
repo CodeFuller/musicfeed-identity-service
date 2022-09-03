@@ -1,4 +1,4 @@
-﻿namespace MusicFeed.IdentityService.Pages.Grants;
+namespace MusicFeed.IdentityService.Pages.Grants;
 
 public class GrantViewModel
 {

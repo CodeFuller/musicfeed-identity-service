@@ -1,4 +1,4 @@
-﻿# docker-compose -f "../../tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yaml" up --no-build --detach
+# docker-compose -f "../../tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yaml" up --no-build --detach
 # docker build --network=host -t musicfeed/identity-service:latest -f "../../src/MusicFeed.IdentityService/Dockerfile" ../..
 # docker-compose -f "../../tests/MusicFeed.IdentityService.IntegrationTests/docker-compose.yaml" down
 
@@ -31,7 +31,6 @@ ENV PATH $PATH:/root/.dotnet/tools
 # Generating database migration scripts.
 RUN dotnet ef migrations script --no-build --configuration Release --idempotent --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomPersistedGrantDbContext --output "temp/db-migration-scripts/Migrate-IdentityServer-Database.sql"
 RUN dotnet ef migrations script --no-build --configuration Release --idempotent --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomIdentityDbContext --output "temp/db-migration-scripts/Migrate-Identity-Database.sql"
-
 
 FROM build AS test
 

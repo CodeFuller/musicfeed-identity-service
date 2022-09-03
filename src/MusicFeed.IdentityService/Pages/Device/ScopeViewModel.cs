@@ -1,4 +1,4 @@
-﻿namespace MusicFeed.IdentityService.Pages.Device
+namespace MusicFeed.IdentityService.Pages.Device
 {
 	public class ScopeViewModel
 	{

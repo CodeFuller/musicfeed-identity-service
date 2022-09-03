@@ -1,4 +1,4 @@
-﻿namespace DemoApi.Contracts
+namespace DemoApi.Contracts
 {
 	public class IdentityResponse
 	{

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations.DesignTime
 {
