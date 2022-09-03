@@ -1,5 +1,7 @@
 ﻿using Duende.IdentityServer;
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -50,6 +52,10 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		.AddInMemoryApiScopes(Config.ApiScopes)
 		.AddInMemoryClients(identityServerSettings.Clients)
 		.AddAspNetIdentity<ApplicationUser>();
+
+	services
+		.AddDataProtection()
+		.PersistKeysToDbContext<CustomPersistedGrantDbContext>();
 
 	services
 		.AddAuthentication()
