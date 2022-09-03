@@ -114,6 +114,12 @@ stages:
         arguments: $(TestsContainerName):/build/TestResults $(Build.ArtifactStagingDirectory)
 
     - task: Docker@2
+      displayName: Copy DB Migration Scripts
+      inputs:
+        command: cp
+        arguments: $(TestsContainerName):/build/temp/db-migration-scripts $(Build.ArtifactStagingDirectory)
+
+    - task: Docker@2
       displayName: Remove Container With Test Results
       inputs:
         command: rm
@@ -197,3 +203,10 @@ stages:
       inputs:
         targetPath: $(Build.ArtifactStagingDirectory)/$(DockerImageName)-$(HelmChartVersion).tgz
         artifact: $(DockerImageName)-$(HelmChartVersion).tgz
+
+    - task: PublishPipelineArtifact@1
+      displayName: Publish DB Migration Scripts
+      condition: and(succeeded(), eq('${{ parameters.PublishArtifacts }}', 'true'))
+      inputs:
+        targetPath: $(Build.ArtifactStagingDirectory)/db-migration-scripts
+        artifact: db-migration-scripts
