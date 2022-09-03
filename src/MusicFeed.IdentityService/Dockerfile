@@ -27,13 +27,14 @@ RUN dotnet build "MusicFeed.IdentityService.Build.sln" --no-restore --configurat
 
 FROM build AS test
 
+RUN dotnet tool install -g dotnet-ef
+ENV PATH $PATH:/root/.dotnet/tools
+
 # Generating database migration scripts.
-RUN dotnet ef migrations script --no-build --configuration Release --idempotent --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomPersistedGrantDbContext --output "temp/migration-scripts/Migrate-IdentityServer-Database.sql"
+RUN dotnet ef migrations script --no-build --configuration Release --idempotent --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomPersistedGrantDbContext --output "temp/db-migration-scripts/Migrate-IdentityServer-Database.sql"
 RUN dotnet ef migrations script --no-build --configuration Release --idempotent --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomIdentityDbContext --output "temp/migration-scripts/Migrate-Identity-Database.sql"
 
 # Applying EF Core migrations necessary for IT.
-RUN dotnet tool install -g dotnet-ef
-ENV PATH $PATH:/root/.dotnet/tools
 RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomPersistedGrantDbContext -- "Server=localhost;Port=15432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
 RUN dotnet ef database update --no-build --configuration Release --project "src/MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations" --context CustomIdentityDbContext -- "Server=localhost;Port=15432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;"
 
