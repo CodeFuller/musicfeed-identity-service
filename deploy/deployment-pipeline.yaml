@@ -61,3 +61,17 @@ stages:
         EnvName: test
         EnvDisplayName: Test
         SubdomainName: musicfeed-test
+
+- stage: DeployToProdEnvironmentStage
+  displayName: Deploy to Production Environment
+  dependsOn:
+    - PrepareDeploymentStage
+    - DeployToTestEnvironmentStage
+  variables: 
+    HelmChartName: $[ stageDependencies.PrepareDeploymentStage.PrepareDeploymentJob.outputs['DefineBuildVersion.HelmChartName'] ]
+  jobs:
+    - template: deployment-pipeline-template.yaml
+      parameters:
+        EnvName: prod
+        EnvDisplayName: Production
+        SubdomainName: musicfeed
