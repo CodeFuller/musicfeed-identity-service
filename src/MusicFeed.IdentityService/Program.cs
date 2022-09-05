@@ -1,7 +1,6 @@
 using Duende.IdentityServer;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -38,7 +37,7 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	var identityServerSettings = new IdentityServerSettings();
 	configuration.Bind(identityServerSettings);
 
-	services
+	var identityServerBuilder = services
 		.AddIdentityServer(options =>
 		{
 			options.Events.RaiseErrorEvents = true;
@@ -47,15 +46,22 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 			options.Events.RaiseSuccessEvents = true;
 			options.EmitStaticAudienceClaim = true;
 		})
-		.AddPostgreSqlDalForPersistedGrantStore(GetIdentityDbConnectionString(configuration))
 		.AddInMemoryIdentityResources(Config.IdentityResources)
 		.AddInMemoryApiScopes(Config.ApiScopes)
 		.AddInMemoryClients(identityServerSettings.Clients)
 		.AddAspNetIdentity<ApplicationUser>();
 
-	services
-		.AddDataProtection()
-		.PersistKeysToDbContext<CustomPersistedGrantDbContext>();
+	if (!identityServerSettings.UseInMemoryDatabase)
+	{
+		identityServerBuilder.AddPostgreSqlDalForPersistedGrantStore(GetIdentityDbConnectionString(configuration));
+	}
+
+	var dataProtectionBuilder = services.AddDataProtection();
+
+	if (!identityServerSettings.UseInMemoryDatabase)
+	{
+		dataProtectionBuilder.PersistKeysToDbContext<CustomPersistedGrantDbContext>();
+	}
 
 	services
 		.AddAuthentication()
