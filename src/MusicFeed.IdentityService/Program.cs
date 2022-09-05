@@ -3,6 +3,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MusicFeed.IdentityService;
 using MusicFeed.IdentityService.Abstractions;
@@ -24,8 +25,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 {
 	services.AddRazorPages();
 
-	services.AddPostgreSqlDal(ConnectionStringFactory());
-
 	services.AddHealthChecks()
 		.AddNpgSql(ConnectionStringFactory(), failureStatus: HealthStatus.Unhealthy, tags: new[] { "ready" }, timeout: TimeSpan.FromSeconds(5));
 
@@ -36,6 +35,18 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 
 	var identityServerSettings = new IdentityServerSettings();
 	configuration.Bind(identityServerSettings);
+
+	if (identityServerSettings.UseInMemoryDatabase)
+	{
+		services.AddDbContext<CustomIdentityDbContext>(options =>
+		{
+			options.UseInMemoryDatabase("IdentityDB");
+		});
+	}
+	else
+	{
+		services.AddPostgreSqlDalForIdentityDb(ConnectionStringFactory());
+	}
 
 	var identityServerBuilder = services
 		.AddIdentityServer(options =>

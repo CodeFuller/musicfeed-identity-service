@@ -6,7 +6,7 @@ namespace MusicFeed.IdentityService.Infrastructure.PostgreSql;
 
 public static class PostgreSqlServiceCollectionExtensions
 {
-	public static IServiceCollection AddPostgreSqlDal(this IServiceCollection services, Func<IServiceProvider, string> connectionStringFactory)
+	public static IServiceCollection AddPostgreSqlDalForIdentityDb(this IServiceCollection services, Func<IServiceProvider, string> connectionStringFactory)
 	{
 		services.AddDbContext<CustomIdentityDbContext>((serviceProvider, options) =>
 		{
