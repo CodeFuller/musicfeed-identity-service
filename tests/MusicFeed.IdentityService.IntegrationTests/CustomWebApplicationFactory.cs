@@ -9,14 +9,22 @@ namespace MusicFeed.IdentityService.IntegrationTests
 	{
 		private readonly Action<IConfigurationBuilder> setupConfiguration;
 
-		public CustomWebApplicationFactory(Action<IConfigurationBuilder> setupConfiguration = null)
+		private readonly string environment;
+
+		public CustomWebApplicationFactory(Action<IConfigurationBuilder> setupConfiguration = null, string environment = null)
 		{
 			this.setupConfiguration = setupConfiguration ?? (_ => { });
+			this.environment = environment;
 		}
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder)
 		{
 			base.ConfigureWebHost(builder);
+
+			if (!String.IsNullOrEmpty(environment))
+			{
+				builder.UseEnvironment(environment);
+			}
 
 			builder.ConfigureAppConfiguration(setupConfiguration);
 		}

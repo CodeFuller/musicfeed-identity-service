@@ -29,7 +29,7 @@ namespace MusicFeed.IdentityService.IntegrationTests
 
 			var actualDocument = JToken.Parse(discoveryDocumentResponse.Raw);
 
-			expectedDocument.Should().BeEquivalentTo(actualDocument);
+			actualDocument.Should().BeEquivalentTo(expectedDocument);
 		}
 	}
 }

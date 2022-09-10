@@ -10,10 +10,11 @@ using MusicFeed.IdentityService.Abstractions;
 using MusicFeed.IdentityService.Infrastructure.PostgreSql;
 using MusicFeed.IdentityService.Infrastructure.PostgreSql.Migrations;
 using MusicFeed.IdentityService.Settings;
+using MusicFeed.IdentityService.Stub;
 
 var builder = WebApplication.CreateBuilder(args);
 
-ConfigureServices(builder.Services, builder.Configuration);
+ConfigureServices(builder);
 
 var app = builder.Build();
 ConfigureMiddleware(app, app.Environment);
@@ -21,8 +22,13 @@ ConfigureEndpoints(app);
 
 app.Run();
 
-void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+void ConfigureServices(WebApplicationBuilder webApplicationBuilder)
 {
+	var services = webApplicationBuilder.Services;
+	var configuration = webApplicationBuilder.Configuration;
+
+	var isStub = webApplicationBuilder.Environment.IsStub();
+
 	services.AddRazorPages();
 
 	services.AddHealthChecks()
@@ -36,7 +42,9 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	var identityServerSettings = new IdentityServerSettings();
 	configuration.Bind(identityServerSettings);
 
-	if (identityServerSettings.UseInMemoryDatabase)
+	services.Configure<IdentityServerSettings>(configuration.Bind);
+
+	if (isStub)
 	{
 		services.AddDbContext<CustomIdentityDbContext>(options =>
 		{
@@ -51,6 +59,8 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 	var identityServerBuilder = services
 		.AddIdentityServer(options =>
 		{
+			options.IssuerUri = identityServerSettings.IssuerUri?.OriginalString;
+
 			options.Events.RaiseErrorEvents = true;
 			options.Events.RaiseInformationEvents = true;
 			options.Events.RaiseFailureEvents = true;
@@ -62,14 +72,14 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
 		.AddInMemoryClients(identityServerSettings.Clients)
 		.AddAspNetIdentity<ApplicationUser>();
 
-	if (!identityServerSettings.UseInMemoryDatabase)
+	if (!isStub)
 	{
 		identityServerBuilder.AddPostgreSqlDalForPersistedGrantStore(GetIdentityDbConnectionString(configuration));
 	}
 
 	var dataProtectionBuilder = services.AddDataProtection();
 
-	if (!identityServerSettings.UseInMemoryDatabase)
+	if (!isStub)
 	{
 		dataProtectionBuilder.PersistKeysToDbContext<CustomPersistedGrantDbContext>();
 	}
@@ -123,11 +133,16 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment env
 	appBuilder.UseAuthorization();
 }
 
-void ConfigureEndpoints(IEndpointRouteBuilder endpointRouteBuilder)
+void ConfigureEndpoints(WebApplication webApplication)
 {
-	endpointRouteBuilder
+	webApplication
 		.MapRazorPages()
 		.RequireAuthorization();
+
+	if (webApplication.Environment.IsStub())
+	{
+		webApplication.MapControllers();
+	}
 
 	app.UseEndpoints(endpoints =>
 	{

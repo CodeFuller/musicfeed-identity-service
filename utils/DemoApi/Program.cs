@@ -15,9 +15,13 @@ builder.Services
 
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
-			ValidateLifetime = true,
-			ValidateAudience = true,
 			ValidateIssuer = true,
+			ValidIssuer = "https://localhost:5001/identity/",
+
+			ValidateAudience = true,
+			ValidAudience = "https://localhost:5001/identity/resources",
+
+			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
 			ValidateActor = true,
 			ValidateTokenReplay = true,

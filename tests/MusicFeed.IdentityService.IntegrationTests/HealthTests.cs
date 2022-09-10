@@ -1,29 +1,21 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static MusicFeed.IdentityService.IntegrationTests.TestHelpers;
 
 namespace MusicFeed.IdentityService.IntegrationTests
 {
 	[TestClass]
 	public class HealthTests
 	{
-		private const string HealthyPostgresConnectionString = "Server=localhost;Port=15432;Database=IdentityDB;User Id=postgres;Password=Qwerty123;";
-		private const string UnhealthyPostgresConnectionString = "Server=localhost;Port=15433;Database=IdentityDB;User Id=postgres;Password=Qwerty123;";
-
-		private static Action<IConfigurationBuilder> HealthyPostgresConfiguration => GetDbConfiguration(HealthyPostgresConnectionString);
-
-		private static Action<IConfigurationBuilder> UnhealthyPostgresConfiguration => GetDbConfiguration(UnhealthyPostgresConnectionString);
-
 		[TestMethod]
 		public async Task LiveRequest_IfAllRequiredServicesAreHealthy_ReturnsHealthyResponse()
 		{
 			// Arrange
 
-			await using var factory = new CustomWebApplicationFactory(HealthyPostgresConfiguration);
+			await using var factory = new CustomWebApplicationFactory(AvailablePostgresConfiguration);
 			using var client = factory.CreateClient();
 
 			// Act
@@ -40,7 +32,7 @@ namespace MusicFeed.IdentityService.IntegrationTests
 		{
 			// Arrange
 
-			await using var factory = new CustomWebApplicationFactory(UnhealthyPostgresConfiguration);
+			await using var factory = new CustomWebApplicationFactory(UnavailablePostgresConfiguration);
 			using var client = factory.CreateClient();
 
 			// Act
@@ -57,7 +49,7 @@ namespace MusicFeed.IdentityService.IntegrationTests
 		{
 			// Arrange
 
-			await using var factory = new CustomWebApplicationFactory(HealthyPostgresConfiguration);
+			await using var factory = new CustomWebApplicationFactory(AvailablePostgresConfiguration);
 			using var client = factory.CreateClient();
 
 			// Act
@@ -74,7 +66,7 @@ namespace MusicFeed.IdentityService.IntegrationTests
 		{
 			// Arrange
 
-			await using var factory = new CustomWebApplicationFactory(UnhealthyPostgresConfiguration);
+			await using var factory = new CustomWebApplicationFactory(UnavailablePostgresConfiguration);
 			using var client = factory.CreateClient();
 
 			// Act
@@ -84,15 +76,6 @@ namespace MusicFeed.IdentityService.IntegrationTests
 			// Assert
 
 			response.StatusCode.Should().Be(HttpStatusCode.ServiceUnavailable);
-		}
-
-		private static Action<IConfigurationBuilder> GetDbConfiguration(string postgresConnectionString)
-		{
-			return configBuilder => configBuilder
-				.AddInMemoryCollection(new[]
-				{
-					new KeyValuePair<string, string>("connectionStrings:identityDB", postgresConnectionString),
-				});
 		}
 	}
 }
