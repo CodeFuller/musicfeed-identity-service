@@ -11,16 +11,12 @@ builder.Services
 	.AddJwtBearer("Bearer", options =>
 	{
 		options.Authority = "https://localhost:5001/identity/";
-		options.Audience = "https://localhost:5001/identity/resources";
+		options.Audience = "musicfeed-api";
 
 		options.TokenValidationParameters = new TokenValidationParameters
 		{
 			ValidateIssuer = true,
-			ValidIssuer = "https://localhost:5001/identity/",
-
 			ValidateAudience = true,
-			ValidAudience = "https://localhost:5001/identity/resources",
-
 			ValidateLifetime = true,
 			ValidateIssuerSigningKey = true,
 			ValidateActor = true,

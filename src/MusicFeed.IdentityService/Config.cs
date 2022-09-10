@@ -15,6 +15,17 @@ namespace MusicFeed.IdentityService
 			}
 		}
 
+		public static IEnumerable<ApiResource> ApiResources
+		{
+			get
+			{
+				yield return new(name: ApiName, displayName: "Music Feed API")
+				{
+					Scopes = new[] { ApiName },
+				};
+			}
+		}
+
 		public static IEnumerable<ApiScope> ApiScopes
 		{
 			get

@@ -61,12 +61,12 @@ namespace MusicFeed.IdentityService.IntegrationTests
 			var jwtEncodedString = await issueTokenResponse.Content.ReadAsStringAsync();
 			var jwtSecurityToken = new JwtSecurityToken(jwtEncodedString);
 
-			jwtSecurityToken.Issuer.Should().Be("https://identity-service-stub/");
-			jwtSecurityToken.Audiences.Should().BeEquivalentTo("https://identity-service-stub/resources");
+			jwtSecurityToken.Issuer.Should().Be("http://localhost/");
+			jwtSecurityToken.Audiences.Should().BeEquivalentTo("musicfeed-api");
 
 			var expectedClaims = new[]
 			{
-				new Claim(JwtClaimTypes.Subject, "Some User Id", null, "https://identity-service-stub/", "https://identity-service-stub/"),
+				new Claim(JwtClaimTypes.Subject, "Some User Id", null, "http://localhost/"),
 			};
 
 			foreach (var expectedClaim in expectedClaims)

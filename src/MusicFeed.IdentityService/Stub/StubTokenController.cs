@@ -75,7 +75,7 @@ namespace MusicFeed.IdentityService.Stub
 			token.Issuer = options.IssuerUri;
 			token.Audiences = new[]
 			{
-				new Uri(new Uri(options.IssuerUri), "resources").OriginalString,
+				"musicfeed-api",
 			};
 
 			var tokenValue = await tokenService.CreateSecurityTokenAsync(token);

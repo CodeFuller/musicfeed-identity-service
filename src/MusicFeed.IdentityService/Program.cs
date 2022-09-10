@@ -68,6 +68,7 @@ void ConfigureServices(WebApplicationBuilder webApplicationBuilder)
 			options.EmitStaticAudienceClaim = true;
 		})
 		.AddInMemoryIdentityResources(Config.IdentityResources)
+		.AddInMemoryApiResources(Config.ApiResources)
 		.AddInMemoryApiScopes(Config.ApiScopes)
 		.AddInMemoryClients(identityServerSettings.Clients)
 		.AddAspNetIdentity<ApplicationUser>();
