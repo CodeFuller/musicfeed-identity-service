@@ -14,6 +14,9 @@ using MusicFeed.IdentityService.Stub;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var identityServerSettings = new IdentityServerSettings();
+builder.Configuration.Bind(identityServerSettings);
+
 ConfigureServices(builder);
 
 var app = builder.Build();
@@ -38,9 +41,6 @@ void ConfigureServices(WebApplicationBuilder webApplicationBuilder)
 		.AddIdentity<ApplicationUser, IdentityRole>()
 		.AddEntityFrameworkStores<CustomIdentityDbContext>()
 		.AddDefaultTokenProviders();
-
-	var identityServerSettings = new IdentityServerSettings();
-	configuration.Bind(identityServerSettings);
 
 	services.Configure<IdentityServerSettings>(configuration.Bind);
 
@@ -118,9 +118,7 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment env
 
 	app.Use((context, next) =>
 	{
-		// Forcing https endpoints in discovery document.
-		// We need this, because service is running in Docker at http port, however is publicly available via ALB at https.
-		context.Request.Scheme = "https";
+		context.Request.Scheme = identityServerSettings.EndpointsScheme;
 		return next();
 	});
 

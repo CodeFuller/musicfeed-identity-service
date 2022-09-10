@@ -32,6 +32,9 @@
     <None Update="ExpectedDiscoveryDocument.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="ExpectedDiscoveryDocument.Stub.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
