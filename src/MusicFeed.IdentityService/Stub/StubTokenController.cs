@@ -19,15 +19,18 @@ namespace MusicFeed.IdentityService.Stub
 
 		private readonly IUserClaimsPrincipalFactory<ApplicationUser> principalFactory;
 
+		private readonly IIssuerNameService issuerNameService;
+
 		private readonly IdentityServerSettings identityServerSettings;
 
 		private readonly IdentityServerOptions options;
 
 		public StubTokenController(ITokenService tokenService, IUserClaimsPrincipalFactory<ApplicationUser> principalFactory,
-			IOptions<IdentityServerSettings> identityServerSettings, IdentityServerOptions options)
+			IIssuerNameService issuerNameService, IOptions<IdentityServerSettings> identityServerSettings, IdentityServerOptions options)
 		{
 			this.tokenService = tokenService ?? throw new ArgumentNullException(nameof(tokenService));
 			this.principalFactory = principalFactory ?? throw new ArgumentNullException(nameof(principalFactory));
+			this.issuerNameService = issuerNameService ?? throw new ArgumentNullException(nameof(issuerNameService));
 			this.identityServerSettings = identityServerSettings?.Value ?? throw new ArgumentNullException(nameof(identityServerSettings));
 			this.options = options ?? throw new ArgumentNullException(nameof(options));
 		}
@@ -72,7 +75,7 @@ namespace MusicFeed.IdentityService.Stub
 
 			var token = await tokenService.CreateAccessTokenAsync(tokenCreationRequest);
 
-			token.Issuer = options.IssuerUri;
+			token.Issuer = await issuerNameService.GetCurrentAsync();
 			token.Audiences = new[]
 			{
 				"musicfeed-api",

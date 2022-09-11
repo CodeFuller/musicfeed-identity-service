@@ -1,5 +1,5 @@
 {
-  "issuer": "http://localhost/",
+  "issuer": "http://localhost",
   "jwks_uri": "http://localhost/.well-known/openid-configuration/jwks",
   "authorization_endpoint": "http://localhost/connect/authorize",
   "token_endpoint": "http://localhost/connect/token",

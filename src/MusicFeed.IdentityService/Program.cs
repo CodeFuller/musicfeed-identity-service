@@ -59,8 +59,6 @@ void ConfigureServices(WebApplicationBuilder webApplicationBuilder)
 	var identityServerBuilder = services
 		.AddIdentityServer(options =>
 		{
-			options.IssuerUri = identityServerSettings.IssuerUri?.OriginalString;
-
 			options.Events.RaiseErrorEvents = true;
 			options.Events.RaiseInformationEvents = true;
 			options.Events.RaiseFailureEvents = true;
@@ -115,12 +113,6 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment env
 	{
 		appBuilder.UseExceptionHandler("/Error");
 	}
-
-	app.Use((context, next) =>
-	{
-		context.Request.Scheme = identityServerSettings.EndpointsScheme;
-		return next();
-	});
 
 	app.UsePathBase("/identity");
 

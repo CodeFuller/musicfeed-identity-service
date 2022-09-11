@@ -47,8 +47,6 @@ spec:
             - name: {{ .name }}
               value: {{ .value }}
           {{- end }}
-            - name: ISSUERURI
-              value: {{ .Values.issuerUri }}
             - name: CONNECTIONSTRINGS__IDENTITYDB
               value: {{ .Values.identityDBConnectionString }}
             - name: AUTHENTICATION__GOOGLE__CLIENTID
