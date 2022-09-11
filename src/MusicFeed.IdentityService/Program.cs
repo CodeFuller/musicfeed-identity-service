@@ -114,6 +114,12 @@ void ConfigureMiddleware(IApplicationBuilder appBuilder, IWebHostEnvironment env
 		appBuilder.UseExceptionHandler("/Error");
 	}
 
+	app.Use((context, next) =>
+	{
+		context.Request.Scheme = identityServerSettings.EndpointsScheme;
+		return next();
+	});
+
 	app.UsePathBase("/identity");
 
 	appBuilder.UseStaticFiles();
